@@ -1,14 +1,31 @@
 package android.rmit.androidass2;
 
 import androidx.fragment.app.FragmentActivity;
+
+import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -22,6 +39,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        LatLng origin = new LatLng(40.722543,-73.998585);
+        LatLng destination = new LatLng(40.7057,-73.9964);
+
+        //Toast.makeText(this, constructUrl(origin,destination), Toast.LENGTH_SHORT).show();
+
+        //String url = "https://maps.googleapis.com/maps/api/directions/json?origin=Disneyland&destination=Universal+Studios+Hollywood&key=AIzaSyBUlqF7sZtQ3I43i6JG8x3mD7ZSp2AXQlI";
+//        String url = constructUrl(origin,destination);
+//        new RetrieveDirection().execute(url);
+        drawRoute(origin,destination);
     }
 
 
@@ -38,9 +65,96 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    public void drawRoute(LatLng origin,LatLng destination){
+        String url = constructUrl(origin,destination);
+        new RetrieveDirection().execute(url);
+    }
+
+    public String constructUrl(LatLng origin, LatLng destination){
+        String key = "AIzaSyBUlqF7sZtQ3I43i6JG8x3mD7ZSp2AXQlI";
+        return "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin.latitude+","+origin.longitude
+                +"&destination="+destination.latitude+","+destination.longitude+"&key="+key;
+    }
+
+
+    class RetrieveDirection extends AsyncTask<String, Void, String>{
+        private Exception exception;
+        String data = "";
+        HttpURLConnection connection=null;
+
+        @Override
+        protected String doInBackground(String... urls){
+
+                try{
+                    URL url = new URL(urls[0]);
+                    connection = (HttpURLConnection)url.openConnection();
+                    connection.connect();
+
+
+                    //get response
+                    InputStream inputStream = connection.getInputStream();
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line="";
+                    while((line = bufferedReader.readLine())!=null){
+                        stringBuilder.append(line);
+                    }
+
+                    data = stringBuilder.toString();
+                    bufferedReader.close();
+                    inputStream.close();
+                    return data;
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return null;
+                }finally{
+                    connection.disconnect();
+                }
+            }
+            @Override
+            protected void onPostExecute(String response){
+                Toast.makeText(MapsActivity.this, response.substring(0,10), Toast.LENGTH_SHORT).show();
+                new ParseDirection().execute(response);
+            }
+
+
+    }
+    class ParseDirection extends AsyncTask<String,Void,List<List<LatLng>>>{
+        @Override
+        protected List<List<LatLng>> doInBackground(String... json){
+            List<List<LatLng>> routes = new ArrayList<>();
+            try{
+                routes = new JSONParser().parseJson(new JSONObject(json[0]));
+
+            }
+            catch(Exception e){
+                e.printStackTrace();
+            }
+            return routes;
+        }
+
+        @Override
+        protected void onPostExecute(List<List<LatLng>> result){
+            PolylineOptions polylineOptions= new PolylineOptions();
+            try{
+                for(List<LatLng> steps:result){
+
+                    polylineOptions.addAll(steps);
+                    polylineOptions.width(3);
+                    polylineOptions.color(Color.BLUE);
+
+
+                }
+                mMap.addMarker(new MarkerOptions().position(result.get(0).get(0)).title("Start"));
+                mMap.addMarker(new MarkerOptions().position(result.get(result.size()-1).get((result.get(result.size()-1)).size()-1)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
+                mMap.addPolyline(polylineOptions);}
+            catch(NullPointerException e){
+                e.printStackTrace();
+            }
+        }
     }
 }
