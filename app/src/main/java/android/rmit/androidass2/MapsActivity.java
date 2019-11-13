@@ -6,14 +6,14 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.ResolvableApiException;
@@ -47,6 +47,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     int MY_PERMISSIONS_REQUEST_LOCATION;
     ArrayList<MarkerData> markerData = new ArrayList<>();
     protected static final int REQUEST_CHECK_SETTINGS = 0x1;
+    Button next;
+
 
     FusedLocationProviderClient fusedLocationProviderClient;
     Address address;
@@ -56,6 +58,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        next = findViewById(R.id.nxtbtn);
+        Button toSignIn = findViewById(R.id.toSignIn);
+
+        toSignIn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this, SignInActivity.class));
+            }
+        });
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MapsActivity.this, SitesActivity.class));
+            }
+        });
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -144,7 +162,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(new LatLng(latitude, longitude))
                 .anchor(0.5f, 0.5f)
                 .title(title));
-
     }
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -171,7 +188,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 data2.setTitle("data2");
                 markerData.add(data);
                 markerData.add(data2);
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("HCM CIty"));
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("My "));
 
                 for (int i = 0; i < markerData.size() ; i++) {
                     createMarker(geoLocate(markerData.get(i)).getLatitude(), geoLocate(markerData.get(i)).getLongitude(), markerData.get(i).getTitle());
