@@ -37,6 +37,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.collect.Maps;
 
 import org.json.JSONObject;
 
@@ -96,6 +97,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         drawRoute(origin,destination);
 
 
+
+
     }
 
     protected void createLocationRequest() {
@@ -143,9 +146,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Geocoder geocoder = new Geocoder (this, Locale.getDefault());
         try {
             List<Address> addressList = geocoder.getFromLocationName(markerData.getAddress(),1 );
+
             if(addressList.size() > 0){
                 address = addressList.get(0);
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -164,6 +169,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                if(mMap!=null){
+                    Intent intent = new Intent(MapsActivity.this,CreateSiteActivity.class);
+                    intent.putExtra("coord",latLng);
+                    startActivity(intent);}
+            }
+        });
     }
 
     private void requestPermission() {
@@ -177,7 +191,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public String constructUrl(LatLng origin, LatLng destination){
-        String key = "AIzaSyBUlqF7sZtQ3I43i6JG8x3mD7ZSp2AXQlI";
+        String key = getString(R.string.google_maps_key);
         return "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin.latitude+","+origin.longitude
                 +"&destination="+destination.latitude+","+destination.longitude+"&key="+key;
     }
@@ -219,7 +233,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         @Override
         protected void onPostExecute(String response){
-            Toast.makeText(MapsActivity.this, response.substring(0,10), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(MapsActivity.this, response.substring(0,10), Toast.LENGTH_SHORT).show();
             new ParseDirection().execute(response);
         }
 
@@ -268,8 +282,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onSuccess(Location location) {
 
-                Toast.makeText(MapsActivity.this, location.getLatitude()+ " "+ location.getLongitude(), Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MapsActivity.this,location.toString(),Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MapsActivity.this, location.getLatitude()+ " "+ location.getLongitude(), Toast.LENGTH_SHORT).show();
                 LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
                 MarkerData data = new MarkerData("702 Nguyễn Văn Linh, Tân Hưng, Quận 7, Hồ Chí Minh 700000, Việt Nam");
                 data.setTitle("data1");
                 MarkerData data2 = new MarkerData("Trường Sơn, Phường 2, Tân Bình, Hồ Chí Minh, Việt Nam");
@@ -278,11 +294,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 markerData.add(data2);
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("My "));
 
-                for (int i = 0; i < markerData.size() ; i++) {
-                    createMarker(geoLocate(markerData.get(i)).getLatitude(), geoLocate(markerData.get(i)).getLongitude(), markerData.get(i).getTitle());
-                }
+
+                geoLocate(data);
+
+//                for (int i = 0; i < markerData.size() ; i++) {
+//                    createMarker(geoLocate(markerData.get(i)).getLatitude(), geoLocate(markerData.get(i)).getLongitude(), markerData.get(i).getTitle());
+//                }
+                //Toast.makeText(MapsActivity.this, location.getLatitude()+"", Toast.LENGTH_SHORT).show();
                 CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, 15);
                 mMap.animateCamera(cameraUpdate);
+
             }
         });
     }
