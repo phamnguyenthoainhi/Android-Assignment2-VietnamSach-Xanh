@@ -1,8 +1,6 @@
 package android.rmit.androidass2;
 
 public class MarkerData {
-//    double latitude;
-//    double longitude;
     String title;
     String snippet;
     String address;

@@ -27,6 +27,9 @@ public class SignInActivity extends AppCompatActivity {
 
 
     String TAG ="SignInActivity";
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +51,6 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
-
     }
     public void signin() {
         mAuth.signInWithEmailAndPassword(emailSignIn.getText().toString(), passwordSignIn.getText().toString())
@@ -59,6 +61,7 @@ public class SignInActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            System.out.println("current user "+ user.getUid());
 //                            updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
