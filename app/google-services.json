@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "758755803504",
+    "firebase_url": "https://vncleanup.firebaseio.com",
+    "project_id": "vncleanup",
+    "storage_bucket": "vncleanup.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758755803504:android:fa11180d6ffeecb411cfb5",
+        "android_client_info": {
+          "package_name": "android.rmit.androidass2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "758755803504-cq89tbf74eiatajpd9d1u0jtm7rsg8jb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "android.rmit.androidass2",
+            "certificate_hash": "e0ff7d7db75b159a4025d8c1f09888222b2de8d7"
+          }
+        },
+        {
+          "client_id": "758755803504-8d7ifv4er1a36gbjip4pup6pnmc8bn0b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6_YhynsOR7xOPM1kvrQIGuXn8vY7nEmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "758755803504-8d7ifv4er1a36gbjip4pup6pnmc8bn0b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
