@@ -2,6 +2,7 @@ package android.rmit.androidass2;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -49,6 +50,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 //        String url = constructUrl(origin,destination);
 //        new RetrieveDirection().execute(url);
         drawRoute(origin,destination);
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Intent intent = new Intent(MapsActivity.this,CreateSiteActivity.class);
+                intent.putExtra("coord",latLng);
+
+                startActivity(intent);
+            }
+        });
     }
 
 
