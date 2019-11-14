@@ -281,7 +281,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for (int i = 0; i < markerData.size() ; i++) {
                     createMarker(geoLocate(markerData.get(i)).getLatitude(), geoLocate(markerData.get(i)).getLongitude(), markerData.get(i).getTitle());
                 }
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, 10);
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(myLocation, 15);
                 mMap.animateCamera(cameraUpdate);
             }
         });
