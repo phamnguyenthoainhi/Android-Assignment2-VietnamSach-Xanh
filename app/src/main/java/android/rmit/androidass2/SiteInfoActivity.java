@@ -26,6 +26,7 @@ public class SiteInfoActivity extends AppCompatActivity {
     TextView name;
     TextView address;
     TextView dateTime;
+    String siteId;
 
     Button invite;
 
@@ -59,10 +60,12 @@ public class SiteInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_site_info);
 
-        Intent intent = getIntent();
 
-        final Bundle bundle = intent.getExtras();
-        fetchSite((String)bundle.get("id"));
+        onNewIntent(getIntent());
+        //processIntent(getIntent());
+
+//        siteId = processIntent(getIntent());
+//        fetchSite(processIntent(getIntent()));
 
         name = findViewById(R.id.site_name);
         address = findViewById(R.id.site_addess);
@@ -74,11 +77,23 @@ public class SiteInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(SiteInfoActivity.this,InviteActivity.class);
-                intent.putExtra("siteId",(String)bundle.get("id"));
+                intent.putExtra("siteId",siteId);
                 startActivity(intent);
             }
         });
 
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        processIntent(intent);
+    }
+
+    private void processIntent(Intent intent){
+        final Bundle bundle = intent.getExtras();
+        fetchSite((String)bundle.get("id"));
+        siteId = (String)bundle.get("id");
     }
 }

@@ -20,13 +20,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".InviteActivity"></activity>
-        <activity android:name=".SiteInfoActivity" >
+        <activity android:name=".SiteInfoActivity" android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="ACTIVITY_INFO"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
+        <service android:name=".NotificationService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <activity android:name=".CreateSiteActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".SignInActivity" />
