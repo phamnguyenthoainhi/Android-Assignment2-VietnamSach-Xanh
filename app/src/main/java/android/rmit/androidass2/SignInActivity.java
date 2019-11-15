@@ -3,6 +3,8 @@ package android.rmit.androidass2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,60 +22,85 @@ public class SignInActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
 
-
     EditText emailSignIn;
     EditText passwordSignIn;
 
 
+    String TAG = "SignInActivity";
+    private boolean isValid() {
 
-    String TAG ="SignInActivity";
-
-
+        if (emailSignIn.getText().toString().trim().equalsIgnoreCase("")){
+            emailSignIn.setError("This field can not be blank");
+            return false;
+        }
+        if(passwordSignIn.getText().toString().trim().equalsIgnoreCase("")){
+            passwordSignIn.setError("This field can not be blank");
+            return false;
+        }
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        emailSignIn = findViewById(R.id.emailSignIn);
-        passwordSignIn = findViewById(R.id.passwordSignIn);
-
-
 
         mAuth = FirebaseAuth.getInstance();
 
+        emailSignIn = findViewById(R.id.emailsignin);
+        passwordSignIn = findViewById(R.id.passwordsignin);
+
+        Button toSignUp = findViewById(R.id.toSignUp);
         Button signIn = findViewById(R.id.signin);
+
+        toSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
+            }
+        });
 
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signin();
-
             }
         });
-
     }
+
     public void signin() {
-        mAuth.signInWithEmailAndPassword(emailSignIn.getText().toString(), passwordSignIn.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            System.out.println("current user "+ user);
-//                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(SignInActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
-                        }
-                    }
-                });
-    }
+        if (isValid()) {
+            mAuth.signInWithEmailAndPassword(emailSignIn.getText().toString(), passwordSignIn.getText().toString())
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "signInWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                if (user != null) {
+                                    SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("uid", user.getUid());
+                                    editor.commit();
 
+                                    startActivity(new Intent(SignInActivity.this, MapsActivity.class));
+                                }
+
+//                            updateUI(user);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "signInWithEmail:failure", task.getException());
+                                Toast.makeText(SignInActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+//                            updateUI(null);
+                            }
+                        }
+                    });
+        }
+
+
+    }
 
 
 }

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Address;
 import android.os.Bundle;
 import android.text.Editable;
@@ -26,6 +27,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.common.collect.Maps;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -40,7 +42,7 @@ public class CreateSiteActivity extends AppCompatActivity {
 
     String TAG="Add site";
     long time;
-    String name;
+    String location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +62,7 @@ public class CreateSiteActivity extends AppCompatActivity {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
                 Log.i("AUTO COMPLETE","Place: "+place.getName()+", "+place.getId());
-                name = place.getAddress();
+                location = place.getAddress();
             }
 
             @Override
@@ -76,8 +78,7 @@ public class CreateSiteActivity extends AppCompatActivity {
 
         PlacesClient placesClient = Places.createClient(this);
 
-//        EditText location = findViewById(R.id.location);
-//        final EditText title = findViewById(R.id.title);
+        final EditText name = findViewById(R.id.name);
         final View dialogView = View.inflate(this, R.layout.picker, null);
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 
@@ -118,13 +119,16 @@ public class CreateSiteActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
+                String userId = sharedPreferences.getString("uid",null);
+                Site site = new Site(location,time, name.getText().toString(), userId);
 
-                Map<String, Object> site = new HashMap<>();
-//                site.put("title",title.getText().toString());
-//                site.put("lat",coordinate.latitude);
-//                site.put("lng",coordinate.longitude);
-                site.put("time",time);
-                site.put("location", name);
+//                Map<String, Object> site = new HashMap<>();
+////                site.put("title",title.getText().toString());
+////                site.put("lat",coordinate.latitude);
+////                site.put("lng",coordinate.longitude);
+//                site.put("time",time);
+//                site.put("location", name);
 
                 db.collection("sites")
                         .add(site)
@@ -132,6 +136,7 @@ public class CreateSiteActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG,"Site added with ID: "+documentReference.getId());
+                                startActivity(new Intent(CreateSiteActivity.this, MapsActivity.class));
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {

@@ -13,25 +13,65 @@
 
         <EditText
             android:id="@+id/firstname"
-            android:layout_width="205dp"
+            android:layout_width="208dp"
             android:layout_height="match_parent"
             android:hint="First Name" />
 
         <EditText
             android:id="@+id/lastname"
-            android:layout_width="232dp"
-            android:layout_height="wrap_content"
+            android:layout_width="203dp"
+            android:layout_height="match_parent"
             android:hint="Last Name" />
+
     </LinearLayout>
 
     <EditText
-        android:id="@+id/emailSignIn"
+        android:id="@+id/phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Email" />
+        android:hint="Phone"
+        android:inputType="phone" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gender" />
+
+    <RadioGroup
+        android:id="@+id/genderbuttongroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation='horizontal'>
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="Female" />
+
+        <RadioButton
+            android:id="@+id/radioButton4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:text="Male" />
+
+        <RadioButton
+            android:id="@+id/radioButton3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other" />
+    </RadioGroup>
 
     <EditText
-        android:id="@+id/passwordSignIn"
+        android:id="@+id/emailsignup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailSubject" />
+
+    <EditText
+        android:id="@+id/passwordsignup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Password" />
