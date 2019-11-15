@@ -14,12 +14,15 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class SignUpActivity extends AppCompatActivity {
     EditText firstName, lastName, phone, emailSignup, passwordSignup;
@@ -30,6 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
     String gender;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     boolean isChecked = false;
+    String token;
 
 
     @Override
@@ -68,18 +72,27 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-    private void writeNewUser(final String userId, String firstname, String lastname, String phone, String gender) {
-        User user = new User(firstname, lastname, phone, gender);
-        db.collection("Users").document(userId).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+    private void writeNewUser(final String userId, final String firstname,final String lastname,final String phone,final String gender, final String email) {
+
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(SignUpActivity.this, "Sucess" + userId, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(SignUpActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-                }
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                token = instanceIdResult.getToken();
+                User user = new User(firstname, lastname, phone, gender, email,token);
+                db.collection("Users").document(userId).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(SignUpActivity.this, "Success" + userId, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(SignUpActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
+
+
     }
 
     private User registerUser() {
@@ -87,6 +100,7 @@ public class SignUpActivity extends AppCompatActivity {
         String userfirstname = firstName.getText().toString().trim();
         String userlastname = lastName.getText().toString().trim();
         String userphone = phone.getText().toString().trim();
+        String email = emailSignup.getText().toString().trim();
         String usergender;
         if (!isChecked) {
             usergender = "Other";
@@ -94,7 +108,7 @@ public class SignUpActivity extends AppCompatActivity {
             usergender = gender;
         }
 
-        return new User(userfirstname, userlastname, userphone, usergender);
+        return new User(userfirstname, userlastname, userphone, usergender, email);
 
     }
 
@@ -138,7 +152,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 Log.d(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 User signedUpUser = registerUser();
-                                writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender());
+                                writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(),signedUpUser.getEmail());
                                 startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                             } else {
                                 // If sign in fails, display a message to the user.

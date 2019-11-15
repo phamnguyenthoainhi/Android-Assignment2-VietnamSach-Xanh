@@ -74,5 +74,15 @@ public class Site {
         this.id = id;
     }
 
-
+    @Override
+    public String toString() {
+        return "Site{" +
+                "location='" + location + '\'' +
+                ", name='" + name + '\'' +
+                ", owner='" + owner + '\'' +
+                ", dateTime=" + dateTime +
+                ", volunteers=" + volunteers +
+                ", id='" + id + '\'' +
+                '}';
+    }
 }

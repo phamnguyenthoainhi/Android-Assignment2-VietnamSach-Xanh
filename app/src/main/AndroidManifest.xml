@@ -19,7 +19,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CreateSiteActivity"></activity>
+        <activity android:name=".InviteActivity"></activity>
+        <activity android:name=".SiteInfoActivity" >
+            <intent-filter>
+                <action android:name="ACTIVITY_INFO"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CreateSiteActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".SignInActivity" />
         <activity android:name=".SitesActivity" />

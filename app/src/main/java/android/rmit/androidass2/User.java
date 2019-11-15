@@ -1,12 +1,30 @@
 package android.rmit.androidass2;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
-    private String firstname;
-    private String lastname;
-    private String phone;
-    private String gender;
+    private String firstname, lastname,phone,gender,email,tokenId;
+
+
+    public User(String firstname, String lastname, String phone, String gender, String email, String tokenId) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.phone = phone;
+        this.gender = gender;
+        this.email = email;
+        this.tokenId = tokenId;
+    }
 
     public User() {
+    }
+
+    public User(String firstname, String lastname, String phone, String gender, String email) {
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.phone = phone;
+        this.gender = gender;
+        this.email = email;
     }
 
     public User(String firstname, String lastname, String phone, String gender) {
@@ -14,6 +32,23 @@ public class User {
         this.lastname = lastname;
         this.phone = phone;
         this.gender = gender;
+    }
+
+
+    public String getTokenId() {
+        return tokenId;
+    }
+
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirstname() {

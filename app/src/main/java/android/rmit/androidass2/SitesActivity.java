@@ -49,11 +49,13 @@ public class SitesActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    user = new User();
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    User user = documentSnapshot.toObject(User.class);
 //                    user.setFirstname(task.getResult().get("firstname").toString());
 //                    user.setLastname(task.getResult().get("lastname").toString());
 //                    user.setPhone(task.getResult().get("phone").toString());
 //                    user.setGender(task.getResult().get("gender").toString());
+//
                 }
             }
         });}
@@ -64,7 +66,7 @@ public class SitesActivity extends AppCompatActivity {
     }
 
     public void fetchSites() {
-        db.collection("sites")
+        db.collection("Sites")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

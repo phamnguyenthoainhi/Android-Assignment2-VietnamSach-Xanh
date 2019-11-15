@@ -51,8 +51,6 @@ public class CreateSiteActivity extends AppCompatActivity {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-//        Intent intent = getIntent();
-//        Bundle bundle = intent.getExtras();
 
         final AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
@@ -110,10 +108,7 @@ public class CreateSiteActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
-//
-//        final LatLng coordinate = (LatLng)bundle.get("coord");
-//
-//        location.setText(coordinate.latitude + " - "+coordinate.longitude);
+
         Button submit = findViewById(R.id.submit);
 
         submit.setOnClickListener(new View.OnClickListener() {
@@ -123,14 +118,8 @@ public class CreateSiteActivity extends AppCompatActivity {
                 String userId = sharedPreferences.getString("uid",null);
                 Site site = new Site(location,time, name.getText().toString(), userId);
 
-//                Map<String, Object> site = new HashMap<>();
-////                site.put("title",title.getText().toString());
-////                site.put("lat",coordinate.latitude);
-////                site.put("lng",coordinate.longitude);
-//                site.put("time",time);
-//                site.put("location", name);
 
-                db.collection("sites")
+                db.collection("Sites")
                         .add(site)
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override

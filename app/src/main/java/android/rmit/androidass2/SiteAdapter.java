@@ -3,6 +3,7 @@ package android.rmit.androidass2;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -54,7 +55,14 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
         final String userId = sharedPreferences.getString("uid",null);
         holder.sitelocation.setText(mySiteList.get(position).getLocation());
 
-
+        holder.sitelocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(holder.context,SiteInfoActivity.class);
+                intent.putExtra("id",mySiteList.get(position).getId());
+                holder.context.startActivity(intent);
+            }
+        });
 
         boolean contains = mySiteList.get(position).getVolunteers().contains(userId);
 
@@ -75,7 +83,7 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
                                         volunteers.add(userId);
                                         mySiteList.get(position).setVolunteers(volunteers);
 
-                                        DocumentReference siteRef = db.collection("sites").document(mySiteList.get(position).getId());
+                                        DocumentReference siteRef = db.collection("Sites").document(mySiteList.get(position).getId());
                                         siteRef.update("volunteers",volunteers)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
