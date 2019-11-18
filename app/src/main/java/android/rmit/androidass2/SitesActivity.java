@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SitesActivity extends AppCompatActivity {
+public class SitesActivity extends AppCompatActivity implements SiteAdapter.SiteViewHolder.OnSiteListener {
     private FirebaseAuth mAuth;
 
     private RecyclerView recyclerView;
@@ -34,7 +36,7 @@ public class SitesActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager layoutManager;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     User user;
-
+    Button joinbtn;
 
 
     String TAG = "Site Activity";
@@ -44,25 +46,18 @@ public class SitesActivity extends AppCompatActivity {
     public void fetchCurrentUser() {
         SharedPreferences shared = getSharedPreferences("id", MODE_PRIVATE);
         String currentUser = (shared.getString("uid", ""));
-        if(currentUser!=null){
         db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    User user = documentSnapshot.toObject(User.class);
-//                    user.setFirstname(task.getResult().get("firstname").toString());
-//                    user.setLastname(task.getResult().get("lastname").toString());
-//                    user.setPhone(task.getResult().get("phone").toString());
-//                    user.setGender(task.getResult().get("gender").toString());
-//
+                    user = new User();
+                    user.setFirstname(task.getResult().get("firstname").toString());
+                    user.setLastname(task.getResult().get("lastname").toString());
+                    user.setPhone(task.getResult().get("phone").toString());
+                    user.setGender(task.getResult().get("gender").toString());
                 }
             }
-        });}
-        else{
-            Intent intent = new Intent(SitesActivity.this,SignInActivity.class);
-            startActivity(intent);
-        }
+        });
     }
 
     public void fetchSites() {
@@ -75,12 +70,8 @@ public class SitesActivity extends AppCompatActivity {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Site site = document.toObject(Site.class);
-                                site.setId(document.getId());
-
                                 sites.add(site);
                                 adapter.notifyDataSetChanged();
-
-
                             }
 
                         } else {
@@ -97,7 +88,7 @@ public class SitesActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new SiteAdapter(sites);
+        adapter = new SiteAdapter(sites, this);
         recyclerView.setAdapter(adapter);
     }
 
@@ -107,9 +98,17 @@ public class SitesActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sites);
+        View siteView = getLayoutInflater().inflate(R.layout.site, null);
         fetchCurrentUser();
 
         initRecyclerView();
 
+    }
+
+    @Override
+    public void onSiteClick(int position) {
+        sites.get(position);
+        Toast.makeText(this, ""+sites.get(position).getId(), Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(SitesActivity.this, ManageSiteActivity.class));
     }
 }

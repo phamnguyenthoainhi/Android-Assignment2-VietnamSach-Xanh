@@ -3,13 +3,16 @@ package android.rmit.androidass2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -50,20 +53,24 @@ public class SignInActivity extends AppCompatActivity {
         emailSignIn = findViewById(R.id.emailsignin);
         passwordSignIn = findViewById(R.id.passwordsignin);
 
-        Button toSignUp = findViewById(R.id.toSignUp);
         Button signIn = findViewById(R.id.signin);
 
-        toSignUp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
-            }
-        });
+
 
         signIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signin();
+            }
+        });
+
+        TextView signupfromsignin = findViewById(R.id.signupfromsignin);
+
+        signupfromsignin.setClickable(true);
+        signupfromsignin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
             }
         });
     }
@@ -84,7 +91,7 @@ public class SignInActivity extends AppCompatActivity {
                                     editor.putString("uid", user.getUid());
                                     editor.commit();
 
-                                    startActivity(new Intent(SignInActivity.this, MapsActivity.class));
+                                    startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
                                 }
 
 //                            updateUI(user);
@@ -101,6 +108,17 @@ public class SignInActivity extends AppCompatActivity {
 
 
     }
+
+    public void hideKeyBoard(View view) {
+                InputMethodManager inputMethodManager =
+                (InputMethodManager) getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.
+                getWindowToken(), 0);
+    }
+
+
+
 
 
 }

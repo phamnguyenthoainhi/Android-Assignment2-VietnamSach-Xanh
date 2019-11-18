@@ -3,14 +3,17 @@ package android.rmit.androidass2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -46,13 +49,23 @@ public class SignUpActivity extends AppCompatActivity {
         emailSignup = findViewById(R.id.emailsignup);
         passwordSignup = findViewById(R.id.passwordsignup);
         mAuth = FirebaseAuth.getInstance();
+        String token;
 
         genderButtonGroup = findViewById(R.id.genderbuttongroup);
+
+        TextView signinfromsignup = findViewById(R.id.signinfromsignup);
+
+        signinfromsignup.setClickable(true);
+        signinfromsignup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+            }
+        });
 
         genderButtonGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                System.out.println("Trial");
                 RadioButton checkedButton = genderButtonGroup.findViewById(checkedId);
                 gender = checkedButton.getText().toString();
                 isChecked= true;
@@ -70,6 +83,7 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
     }
+
 
 
     private void writeNewUser(final String userId, final String firstname,final String lastname,final String phone,final String gender, final String email) {
@@ -100,15 +114,14 @@ public class SignUpActivity extends AppCompatActivity {
         String userfirstname = firstName.getText().toString().trim();
         String userlastname = lastName.getText().toString().trim();
         String userphone = phone.getText().toString().trim();
-        String email = emailSignup.getText().toString().trim();
         String usergender;
         if (!isChecked) {
             usergender = "Other";
         } else {
-            usergender = gender;
+           usergender = gender;
         }
 
-        return new User(userfirstname, userlastname, userphone, usergender, email);
+        return new User(userfirstname, userlastname, userphone, usergender);
 
     }
 
@@ -165,8 +178,12 @@ public class SignUpActivity extends AppCompatActivity {
                         }
                     });
         }
-
-
     }
-
+    public void hideKeyBoard(View view) {
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.
+                getWindowToken(), 0);
+    }
 }
