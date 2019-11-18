@@ -40,7 +40,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationMenu;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -306,11 +305,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public String constructUrl(LatLng origin, LatLng destination) {
-        String key = "AIzaSyBUlqF7sZtQ3I43i6JG8x3mD7ZSp2AXQlI";
+        String key = getString(R.string.google_maps_key);
         return "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin.latitude + "," + origin.longitude
                 + "&destination=" + destination.latitude + "," + destination.longitude + "&key=" + key;
     }
 
+    public String constructUrl(String location){
+        String key = getString(R.string.google_maps_key);
+        return "https://maps.googleapis.com/maps/api/geocode/json?address="+location.replaceAll("\\s","+")+"&key="+key;
+    }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
@@ -336,11 +339,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
-            class RetrieveDirection extends AsyncTask<String, Void, String> {
+    class RetrieveDirection extends AsyncTask<String, Void, String> {
         private Exception exception;
         String data = "";
         HttpURLConnection connection = null;
+
 
         @Override
         protected String doInBackground(String... urls) {
@@ -376,6 +379,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(String response) {
             new ParseDirection().execute(response);
+
         }
 
     }
@@ -413,18 +417,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(result.get(result.size() - 1).get((result.get(result.size() - 1)).size() - 1)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
                 mMap.addPolyline(polylineOptions);
+
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
         }
     }
 
+
+
     public void addMarkers() {
-//        for (int i = 0; i < sites.size(); i++) {
+        for (final Site site: sites) {
 //            createMarker(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude(), sites.get(i).getName(), sites.get(i).getId());
 //            createMarker(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude(), sites.get(i).getName(), sites.get(i).getId());
-//            builder.include(new LatLng(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude()));
-//        }
+            GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
+                @Override
+                public void processFinish(LatLng output) {
+                    Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
+                    createMarker(output.latitude,output.longitude,site.getName(),site.getId());
+                    builder.include(output);
+                }
+            });
+            getLatLng.execute(constructUrl(site.getLocation()));
+
+        }
 
         LatLngBounds bounds = builder.build();
         mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));

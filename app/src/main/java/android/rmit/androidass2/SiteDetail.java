@@ -58,10 +58,13 @@ public class SiteDetail extends AppCompatActivity {
 
                     DocumentSnapshot documentSnapshot = task.getResult();
                     site = documentSnapshot.toObject(Site.class);
-                    site.setId(documentSnapshot.getId());
+
 //                    site.setLocation(task.getResult().get("location").toString());
 //                    site.setOwner(task.getResult().get("owner").toString());
+                    site.setId(documentSnapshot.getId());
                     sitelocation.setText(site.getLocation());
+                    siteinfo.setText(site.getName());
+
                     System.out.println("Test " + site.getLocation());
                 }
             }

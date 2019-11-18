@@ -1,13 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".SitesActivity">
+
+    <Button
+
+        android:id="@+id/addnewsite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/rounded_button"
+
+        android:backgroundTint="#A30CCCD3"
+        android:paddingLeft="85dp"
+        android:paddingTop="5dp"
+        android:paddingRight="85dp"
+        android:paddingBottom="5dp"
+
+        android:text="Create A new Site !"
+        android:textColor="#FFFFFF"
+
+        android:textSize="18sp">
+
+    </Button>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/my_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</RelativeLayout>
+</LinearLayout>
