@@ -60,25 +60,25 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         });
     }
 
-    public void fetchSites() {
-        db.collection("Sites")
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.d(TAG, document.getId() + " => " + document.getData());
-                                Site site = document.toObject(Site.class);
-                                sites.add(site);
-                                adapter.notifyDataSetChanged();
-                            }
-
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
+    public void fetchSiteByOwnerId() {
+        SharedPreferences shared = getSharedPreferences("id", MODE_PRIVATE);
+        String currentUser = (shared.getString("uid", ""));
+        db.collection("Sites").whereEqualTo("owner", currentUser)
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Site site = document.toObject(Site.class);
+                        sites.add(site);
+                        adapter.notifyDataSetChanged();
+                        Log.d(TAG, "onComplete: fetch site by owner" + document.getData());
+//                        Log.d(TAG, document.getId() + " => " + document.getData());
                     }
-                });
+                }
+            }
+        });
+
     }
 
     public void initRecyclerView() {
@@ -94,14 +94,15 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        fetchSites();
-
+//        fetchSites();
+        fetchSiteByOwnerId();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sites);
         View siteView = getLayoutInflater().inflate(R.layout.site, null);
         fetchCurrentUser();
 
         initRecyclerView();
+
         Button createSite = findViewById(R.id.addnewsite);
         createSite.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +110,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
                 startActivity(new Intent(SitesActivity.this,CreateSiteActivity.class));
             }
         });
+
     }
 
     @Override

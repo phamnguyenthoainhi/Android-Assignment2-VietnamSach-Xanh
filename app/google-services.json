@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "800879092589",
-    "firebase_url": "https://cloud2-a6d97.firebaseio.com",
-    "project_id": "cloud2-a6d97",
-    "storage_bucket": "cloud2-a6d97.appspot.com"
+    "project_number": "64613459253",
+    "firebase_url": "https://vncleanup-9e8be.firebaseio.com",
+    "project_id": "vncleanup-9e8be",
+    "storage_bucket": "vncleanup-9e8be.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:800879092589:android:d83ef21ea97da9c5fe3064",
+        "mobilesdk_app_id": "1:64613459253:android:d18716989d3e529a09d87c",
         "android_client_info": {
           "package_name": "android.rmit.androidass2"
         }
       },
       "oauth_client": [
         {
-          "client_id": "800879092589-qolm0ps4d1075v2b4is7kcdd22p69ua1.apps.googleusercontent.com",
+          "client_id": "64613459253-jdlua4re4vu41puj2pqg4eo41a2au5vr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "android.rmit.androidass2",
@@ -23,57 +23,20 @@
           }
         },
         {
-          "client_id": "800879092589-052ovpbp0bq50tc0aipn0es747uk3drv.apps.googleusercontent.com",
+          "client_id": "64613459253-5a1mlcstqe07a6o7klknml0ovv5s90j9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCgCmhCRjyM9qUuGgAjZq_chAb9UCozQwE"
+          "current_key": "AIzaSyBO66prDBuvtxn72uPsSV8j-WsLykLclEU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "800879092589-052ovpbp0bq50tc0aipn0es747uk3drv.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:800879092589:android:659a392234c4ed54fe3064",
-        "android_client_info": {
-          "package_name": "rmit.android.week4b"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "800879092589-1ttkon3kg07lsqku70s1epb7u0epi3ct.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "rmit.android.week4b",
-            "certificate_hash": "3f42ae82daf48d8475993316377a6ecf85f1995d"
-          }
-        },
-        {
-          "client_id": "800879092589-052ovpbp0bq50tc0aipn0es747uk3drv.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCgCmhCRjyM9qUuGgAjZq_chAb9UCozQwE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "800879092589-052ovpbp0bq50tc0aipn0es747uk3drv.apps.googleusercontent.com",
+              "client_id": "64613459253-5a1mlcstqe07a6o7klknml0ovv5s90j9.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

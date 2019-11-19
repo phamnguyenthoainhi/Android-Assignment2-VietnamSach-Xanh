@@ -22,7 +22,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/maplayout"
+        >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -54,11 +56,17 @@
 
 
 
-        <Button
-            android:id="@+id/todetails"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button" />
+<!--        <Button-->
+<!--            android:id="@+id/todetails"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Button" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/create_site"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Create Site" />-->
 
         <EditText
             android:id="@+id/searchbar"
@@ -78,7 +86,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/resultsearchlist"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:background="@drawable/rounded_corner"

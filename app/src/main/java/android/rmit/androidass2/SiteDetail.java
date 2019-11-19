@@ -11,7 +11,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +26,9 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.Calendar;
 import java.util.Formatter;
 import java.util.List;
 
@@ -37,17 +41,16 @@ public class SiteDetail extends AppCompatActivity {
     String TAG = "Site Detail";
     Button invite;
     String siteId="";
+    EditText email;
+    SharedPreferences sharedPreferences;
+    String userId;
 
     public void fetchSelectedSite(String selectedSite) {
-//        SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
-//
-//        final String selectedSite = (sharedPreferences.getString("sid", ""));
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         firestore.setFirestoreSettings(settings);
-//        db.collection("sites").whereArrayContains(selected)
 
         db.collection("Sites").document(selectedSite).get()
 
@@ -59,22 +62,51 @@ public class SiteDetail extends AppCompatActivity {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     site = documentSnapshot.toObject(Site.class);
 
-//                    site.setLocation(task.getResult().get("location").toString());
-//                    site.setOwner(task.getResult().get("owner").toString());
                     site.setId(documentSnapshot.getId());
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
+                    sitedate.setText(convertDate(site.getDateTime()));
+                    Log.d(TAG, "onComplete: site detail object"+ site.getDateTime());
 
-                    System.out.println("Test " + site.getLocation());
+
                 }
             }
         })
         ;
 
-
-//        Toast.makeText(this, "" + site.getLocation(), Toast.LENGTH_SHORT).show();
-
     }
+
+    public String convertDate(long millsec) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTimeInMillis(millsec);
+
+        int mYear = calendar.get(Calendar.YEAR);
+        int mMonth = calendar.get(Calendar.MONTH);
+        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        int mHour = calendar.get(Calendar.HOUR);
+        int mMinute = calendar.get(Calendar.MINUTE);
+
+        String s = "";
+
+        if (mHour <= 9 && mMinute <= 9) {
+            s = "0" + mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+        if (mHour <= 9 && mMinute > 9) {
+            s = "0" + mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+        if (mHour > 9 && mMinute > 9) {
+            s = mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+        if (mHour > 9 && mMinute  <= 9) {
+            s = mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+
+        return s;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,11 +122,11 @@ public class SiteDetail extends AppCompatActivity {
             }
         });
         onNewIntent(getIntent());
-
+        sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
+        userId = sharedPreferences.getString("uid",null);
         final Button join = findViewById(R.id.joinbutton);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
-        final String userId = sharedPreferences.getString("uid",null);
+
 
         join.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,11 +188,100 @@ public class SiteDetail extends AppCompatActivity {
         invite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SiteDetail.this,InviteActivity.class);
-                intent.putExtra("siteId",siteId);
-                startActivity(intent);
+                showDialogInvite();
+
+//                Intent intent = new Intent(SiteDetail.this,InviteActivity.class);
+//                intent.putExtra("siteId",siteId);
+//                startActivity(intent);
             }
         });
+
+        Log.d(TAG, "onCreate: test" + convertDate(1300018752992l));
+
+    }
+
+    public void showDialogInvite() {
+        final AlertDialog.Builder alert = new AlertDialog.Builder(SiteDetail.this);
+        final View dialogView = getLayoutInflater().inflate(R.layout.activity_invite, null);
+        email=dialogView.findViewById(R.id.email_invite);
+
+        Button invite =dialogView.findViewById(R.id.invite);
+
+        alert.setView(dialogView);
+        final AlertDialog alertDialog = alert.create();
+        alertDialog.setCanceledOnTouchOutside(true);
+
+
+
+
+        invite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                db.collection("Users").whereEqualTo("email", email.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()){
+
+
+
+                            Log.d(TAG, "onComplete: invite "+ task.getResult().getDocuments());
+
+
+
+//                            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+
+
+
+//                            User user = documentSnapshot.toObject(User.class);
+//                            if(user.getUserNotifications().size()>0){
+//                                notifications.addAll(user.getUserNotifications());
+//                            }
+
+//                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, userId, documentSnapshot.getId());
+
+//                            List<FieldValue> fieldValues = new ArrayList<>();
+//                            for(UserNotification userNotification:notifications){
+//                                fieldValues.add(FieldValue.arrayUnion(userNotification));
+//                            }
+//
+//                            List<HashMap<String,String>> notifs = new ArrayList<>();
+//
+//                            for(UserNotification userNotification:notifications){
+//                                HashMap<String,String> notif = new HashMap<>();
+//                                notif.put("content",userNotification.getContent());
+//                                notif.put("type",userNotification.getType());
+//                                notif.put("siteId",userNotification.getSiteId());
+//                                notif.put("from",userId);
+//                                notif.put("to",documentSnapshot.getId());
+//                                notifs.add(notif);
+//                            }
+
+//                            db.collection("Notifications").add(userNotification)
+//                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                                        @Override
+//                                        public void onSuccess(DocumentReference documentReference) {
+//                                            Toast.makeText(SiteDetail.this, "Successfully posted notification", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    })
+//                                    .addOnFailureListener(new OnFailureListener() {
+//                                        @Override
+//                                        public void onFailure(@NonNull Exception e) {
+//                                            Toast.makeText(SiteDetail.this, "Failed to post notification", Toast.LENGTH_SHORT).show();
+//                                        }
+//                                    });
+//
+//                            finish();
+                        }
+                        else{
+                            Toast.makeText(SiteDetail.this, "failed to get user", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
+        alertDialog.show();
+
     }
 
     @Override
@@ -170,10 +291,14 @@ public class SiteDetail extends AppCompatActivity {
     }
 
     private void processIntent(Intent intent){
+
         final Bundle bundle = intent.getExtras();
+        Log.d(TAG, "processIntent: " + (String)bundle.get("id"));
         fetchSelectedSite((String)bundle.get("id"));
         siteId = (String)bundle.get("id");
     }
+
+
 
 
 }
