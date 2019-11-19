@@ -119,13 +119,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        Button createSite = findViewById(R.id.create_site);
-        createSite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(MapsActivity.this,CreateSiteActivity.class));
-            }
-        });
+
 
 
         Button refreshbtn = findViewById(R.id.refeshbtn);

@@ -102,7 +102,13 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         fetchCurrentUser();
 
         initRecyclerView();
-
+        Button createSite = findViewById(R.id.addnewsite);
+        createSite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(SitesActivity.this,CreateSiteActivity.class));
+            }
+        });
     }
 
     @Override
