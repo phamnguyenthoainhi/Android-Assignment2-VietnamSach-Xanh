@@ -1,5 +1,8 @@
 package android.rmit.androidass2;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +14,8 @@ public class Site {
     private List<String> volunteers = new ArrayList<>();
     private String id;
 
+
+
     public Site() {
     }
 
@@ -21,6 +26,22 @@ public class Site {
         this.dateTime = dateTime;
     }
 
+    public Site(String location, String name, String owner, long dateTime, List<String> volunteers, String id) {
+        this.location = location;
+        this.name = name;
+        this.owner = owner;
+        this.dateTime = dateTime;
+        this.volunteers = volunteers;
+        this.id = id;
+    }
+
+    public Site(String location, String name, String owner, long dateTime, List<String> volunteers) {
+        this.location = location;
+        this.name = name;
+        this.owner = owner;
+        this.dateTime = dateTime;
+        this.volunteers = volunteers;
+    }
 
     public long getDateTime() {
         return dateTime;

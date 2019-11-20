@@ -165,7 +165,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 Log.d(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 User signedUpUser = registerUser();
-                                writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(),signedUpUser.getEmail());
+                                writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(),emailSignup.getText().toString());
                                 startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                             } else {
                                 // If sign in fails, display a message to the user.

@@ -28,9 +28,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Locale;
 
 public class SiteDetail extends AppCompatActivity {
     TextView sitelocation;
@@ -77,33 +79,36 @@ public class SiteDetail extends AppCompatActivity {
     }
 
     public String convertDate(long millsec) {
-        Calendar calendar = Calendar.getInstance();
 
-        calendar.setTimeInMillis(millsec);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yy hh:mm", Locale.getDefault());
 
-        int mYear = calendar.get(Calendar.YEAR);
-        int mMonth = calendar.get(Calendar.MONTH);
-        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+//        Calendar calendar = Calendar.getInstance();
+//
+//        calendar.setTimeInMillis(millsec);
+//
+//        int mYear = calendar.get(Calendar.YEAR);
+//        int mMonth = calendar.get(Calendar.MONTH);
+//        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+//
+//        int mHour = calendar.get(Calendar.HOUR);
+//        int mMinute = calendar.get(Calendar.MINUTE);
+//
+//        String s = "";
+//
+//        if (mHour <= 9 && mMinute <= 9) {
+//            s = "0" + mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+//        }
+//        if (mHour <= 9 && mMinute > 9) {
+//            s = "0" + mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+//        }
+//        if (mHour > 9 && mMinute > 9) {
+//            s = mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+//        }
+//        if (mHour > 9 && mMinute  <= 9) {
+//            s = mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+//        }
 
-        int mHour = calendar.get(Calendar.HOUR);
-        int mMinute = calendar.get(Calendar.MINUTE);
-
-        String s = "";
-
-        if (mHour <= 9 && mMinute <= 9) {
-            s = "0" + mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-        }
-        if (mHour <= 9 && mMinute > 9) {
-            s = "0" + mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-        }
-        if (mHour > 9 && mMinute > 9) {
-            s = mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-        }
-        if (mHour > 9 && mMinute  <= 9) {
-            s = mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-        }
-
-        return s;
+        return simpleDateFormat.format(millsec);
     }
 
 

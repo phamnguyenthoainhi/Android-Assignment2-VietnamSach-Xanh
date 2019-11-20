@@ -116,20 +116,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapLayout = findViewById(R.id.maplayout);
         recyclerView.setVisibility(View.INVISIBLE);
 
-        Button todetails = findViewById(R.id.todetails);
+//        Button todetails = findViewById(R.id.todetails);
         Button refreshbtn = findViewById(R.id.refeshbtn);
 
         fetchSites();
         initRecyclerView();
 
 
-        todetails.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MapsActivity.this, ManageSiteActivity.class));
-            }
-
-        });
+//        todetails.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(MapsActivity.this, ManageSiteActivity.class));
+//            }
+//
+//        });
 
         searchbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -455,7 +455,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                 @Override
                 public void processFinish(LatLng output) {
-                    Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                     createMarker(output.latitude,output.longitude,site.getName(),site.getId());
                     builder.include(output);
 

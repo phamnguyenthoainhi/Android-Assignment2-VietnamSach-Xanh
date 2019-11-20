@@ -70,6 +70,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Site site = document.toObject(Site.class);
+                        site.setId(document.getId());
                         sites.add(site);
                         adapter.notifyDataSetChanged();
                         Log.d(TAG, "onComplete: fetch site by owner" + document.getData());
@@ -116,7 +117,9 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
     @Override
     public void onSiteClick(int position) {
         sites.get(position);
-        Toast.makeText(this, ""+sites.get(position).getId(), Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(SitesActivity.this, ManageSiteActivity.class));
+        //Toast.makeText(this, ""+sites.get(position).getId(), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(SitesActivity.this,ManageSiteActivity.class);
+        intent.putExtra("id",sites.get(position).getId());
+        startActivity(intent);
     }
 }

@@ -60,29 +60,9 @@ public class InviteActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-//                            User user = documentSnapshot.toObject(User.class);
-//                            if(user.getUserNotifications().size()>0){
-//                                notifications.addAll(user.getUserNotifications());
-//                            }
+
 
                             UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", (String) bundle.get("siteId"), userId, documentSnapshot.getId());
-
-//                            List<FieldValue> fieldValues = new ArrayList<>();
-//                            for(UserNotification userNotification:notifications){
-//                                fieldValues.add(FieldValue.arrayUnion(userNotification));
-//                            }
-//
-//                            List<HashMap<String,String>> notifs = new ArrayList<>();
-//
-//                            for(UserNotification userNotification:notifications){
-//                                HashMap<String,String> notif = new HashMap<>();
-//                                notif.put("content",userNotification.getContent());
-//                                notif.put("type",userNotification.getType());
-//                                notif.put("siteId",userNotification.getSiteId());
-//                                notif.put("from",userId);
-//                                notif.put("to",documentSnapshot.getId());
-//                                notifs.add(notif);
-//                            }
 
                             db.collection("Notifications").add(userNotification)
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

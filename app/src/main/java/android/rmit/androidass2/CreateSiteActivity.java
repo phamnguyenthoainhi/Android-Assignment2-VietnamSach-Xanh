@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
@@ -31,10 +32,12 @@ import com.google.common.collect.Maps;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class CreateSiteActivity extends AppCompatActivity {
@@ -55,6 +58,8 @@ public class CreateSiteActivity extends AppCompatActivity {
         final AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
 
         autocompleteSupportFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS));
+
+        autocompleteSupportFragment.setCountry("VN");
 
         autocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
@@ -100,7 +105,9 @@ public class CreateSiteActivity extends AppCompatActivity {
 
                         time = calendar.getTimeInMillis();
 
-                        ((EditText)dateTime).setText(time+"");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yy hh:mm", Locale.getDefault());
+
+                        ((EditText)dateTime).setText(simpleDateFormat.format(time));
 
                         alertDialog.dismiss();
                     }});
@@ -125,7 +132,23 @@ public class CreateSiteActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG,"Site added with ID: "+documentReference.getId());
-                                startActivity(new Intent(CreateSiteActivity.this, MapsActivity.class));
+                                db.collection("Reports")
+                                        .document(documentReference.getId())
+                                        .set(new DataReport())
+                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(CreateSiteActivity.this, "Successfully added base report", Toast.LENGTH_SHORT).show();
+                                                finish();
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(CreateSiteActivity.this, "Failed to add base report", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                //startActivity(new Intent(CreateSiteActivity.this, MapsActivity.class));
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
