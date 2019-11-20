@@ -152,7 +152,8 @@ public class SiteDetail extends AppCompatActivity {
                                             volunteers.add(userId);
                                             site.setVolunteers(volunteers);
 
-                                            DocumentReference siteRef = db.collection("Sites").document(site.getId());
+
+                                            DocumentReference siteRef = db.collection("SitesVolunteers").document(site.getId());
                                             siteRef.update("volunteers",volunteers)
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                         @Override
@@ -165,6 +166,31 @@ public class SiteDetail extends AppCompatActivity {
                                                         @Override
                                                         public void onFailure(@NonNull Exception e) {
                                                             Log.w(TAG,"Failed to update.");
+                                                        }
+                                                    });
+                                            db.collection("Users").document(userId).get()
+                                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                        @Override
+                                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                            User user = documentSnapshot.toObject(User.class);
+                                                            if(user!=null){
+                                                                List<String> volunteeredSites = user.getSites();
+                                                                volunteeredSites.add(site.getId());
+                                                                db.collection("Users").document(userId)
+                                                                        .update("sites",volunteeredSites)
+                                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                            @Override
+                                                                            public void onSuccess(Void aVoid) {
+                                                                                Log.d(TAG,"Successfully updated user.");
+                                                                            }
+                                                                        })
+                                                                        .addOnFailureListener(new OnFailureListener() {
+                                                                            @Override
+                                                                            public void onFailure(@NonNull Exception e) {
+                                                                                Log.w(TAG,"Failed to update user.");
+                                                                            }
+                                                                        });
+                                                            }
                                                         }
                                                     });
 

@@ -448,7 +448,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     public void addMarkers() {
-
         for (final Site site: sites) {
 //            createMarker(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude(), sites.get(i).getName(), sites.get(i).getId());
 //            createMarker(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude(), sites.get(i).getName(), sites.get(i).getId());
@@ -458,19 +457,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     //Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                     createMarker(output.latitude,output.longitude,site.getName(),site.getId());
                     builder.include(output);
+                    LatLngBounds bounds = builder.build();
+                    mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 80);
+                    mMap.animateCamera(cameraUpdate);
 
                 }
             });
             getLatLng.execute(constructUrl(site.getLocation()));
 
         }
-        Log.d(TAG, "addMarkers: buidlder " + builder.toString());
-        builder.include(new LatLng(10.776080, 106.703040));
-        LatLngBounds bounds = builder.build();
-
-        mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 80);
-        mMap.animateCamera(cameraUpdate);
+//        Log.d(TAG, "addMarkers: buidlder " + builder.toString());
+//        builder.include(new LatLng(10.776080, 106.703040));
+//        LatLngBounds bounds = builder.build();
+//
+//        mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
+//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 80);
+//        mMap.animateCamera(cameraUpdate);
     }
 
     @SuppressLint("MissingPermission")

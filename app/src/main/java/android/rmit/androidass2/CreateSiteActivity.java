@@ -123,7 +123,7 @@ public class CreateSiteActivity extends AppCompatActivity {
             public void onClick(View view) {
                 SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
                 String userId = sharedPreferences.getString("uid",null);
-                Site site = new Site(location,time, name.getText().toString(), userId);
+                final Site site = new Site(location,time, name.getText().toString(), userId);
 
 
                 db.collection("Sites")
@@ -132,6 +132,9 @@ public class CreateSiteActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
                                 Log.d(TAG,"Site added with ID: "+documentReference.getId());
+
+                                final String id = documentReference.getId();
+
                                 db.collection("Reports")
                                         .document(documentReference.getId())
                                         .set(new DataReport())
@@ -139,7 +142,22 @@ public class CreateSiteActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 Toast.makeText(CreateSiteActivity.this, "Successfully added base report", Toast.LENGTH_SHORT).show();
-                                                finish();
+                                                db.collection("SitesVolunteers")
+                                                        .document(id)
+                                                        .set(site)
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Toast.makeText(CreateSiteActivity.this, "Create site with volunteers", Toast.LENGTH_SHORT).show();
+                                                                finish();
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(CreateSiteActivity.this, "Failed to create site with volunteers", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
@@ -148,6 +166,7 @@ public class CreateSiteActivity extends AppCompatActivity {
                                                 Toast.makeText(CreateSiteActivity.this, "Failed to add base report", Toast.LENGTH_SHORT).show();
                                             }
                                         });
+
                                 //startActivity(new Intent(CreateSiteActivity.this, MapsActivity.class));
                             }
                         })

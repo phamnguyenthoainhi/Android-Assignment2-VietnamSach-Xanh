@@ -5,6 +5,7 @@ import java.util.List;
 
 public class User {
     private String firstname, lastname,phone,gender,email,tokenId;
+    private List<String> sites;
 
 
     public User(String firstname, String lastname, String phone, String gender, String email, String tokenId) {
@@ -81,6 +82,14 @@ public class User {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public List<String> getSites() {
+        return sites;
+    }
+
+    public void setSites(List<String> sites) {
+        this.sites = sites;
     }
 
     @Override
