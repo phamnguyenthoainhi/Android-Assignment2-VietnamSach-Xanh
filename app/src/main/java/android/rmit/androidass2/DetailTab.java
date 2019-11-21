@@ -26,6 +26,7 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -38,25 +39,27 @@ import androidx.fragment.app.Fragment;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
-import static android.content.Context.MODE_PRIVATE;
 
 public class DetailTab extends Fragment {
-    EditText sitelocation;
-    EditText sitedate;
-    EditText siteinfo;
-    Site site;
-    Button savebtn;
-    Button editbtn;
-    Button deletebtn;
-    List<Place.Field> fields;
-    int AUTOCOMPLETE_REQUEST_CODE = 1;
+    private EditText sitelocation;
+    private EditText sitedate;
+    private EditText siteinfo;
+    private Site site;
+    private Button savebtn;
+    private Button editbtn;
+    private Button deletebtn;
+    private List<Place.Field> fields;
+    private int AUTOCOMPLETE_REQUEST_CODE = 1;
+    private DatePicker datePicker;
+    private TimePicker timePicker;
+    private long dateTime;
 
 
     private static final String TAG = "DetailTab";
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
-    public void fetchdetailbyid(String id) {
+    private void fetchdetailbyid(String id) {
         db.collection("Sites").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -69,6 +72,13 @@ public class DetailTab extends Fragment {
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
                     sitedate.setText(convertDate(site.getDateTime()));
+
+                    Calendar currentValues = Calendar.getInstance();
+                    currentValues.setTimeInMillis(site.getDateTime());
+
+                    datePicker.updateDate(currentValues.get(Calendar.YEAR),currentValues.get(Calendar.MONTH),currentValues.get(Calendar.DAY_OF_MONTH));
+                    timePicker.setCurrentHour(currentValues.get(Calendar.HOUR));
+                    timePicker.setCurrentMinute(currentValues.get(Calendar.MINUTE));
                 }
 
             }
@@ -76,7 +86,7 @@ public class DetailTab extends Fragment {
 
     }
 
-    public String convertDate(long millsec) {
+    private String convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
 
         calendar.setTimeInMillis(millsec);
@@ -106,18 +116,18 @@ public class DetailTab extends Fragment {
         return s;
     }
 
-    private void updateSite(final String sid, final String newInfo){
+    private void updateSite(){
 
-        db.collection("Sites").document(sid)
+        db.collection("Sites").document(site.getId())
                 .set(site)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.d(TAG,"Successfully updated site info.");
-                        db.collection("SitesVolunteers").document(sid)
+                        db.collection("SitesVolunteers").document(site.getId())
                                 .update("location",site.getLocation(),
                                         "dateTime",site.getDateTime(),
-                                        "name", newInfo
+                                        "name", site.getName()
                                 )
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -177,23 +187,30 @@ public class DetailTab extends Fragment {
                         .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                updateSite(sid,siteinfo.getText().toString());
+                                site.setDateTime(dateTime);
+                                site.setLocation(sitelocation.getText().toString());
+                                site.setName(siteinfo.getText().toString());
+                                updateSite();
 
-                                savebtn.setVisibility(View.INVISIBLE);
-                                editbtn.setVisibility(View.VISIBLE);
-                                sitelocation.setEnabled(false);
-                                sitedate.setEnabled(false);
-                                siteinfo.setEnabled(false);
-                                deletebtn.setVisibility(View.INVISIBLE);
+
                             }
                         })
                         .setPositiveButton("No", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                sitelocation.setText(site.getLocation());
+                                sitedate.setText(convertDate(site.getDateTime()));
+                                siteinfo.setText(site.getName());
                                 dialogInterface.dismiss();
                             }
                         });
                 builder.create().show();
+                savebtn.setVisibility(View.INVISIBLE);
+                editbtn.setVisibility(View.VISIBLE);
+                sitelocation.setEnabled(false);
+                sitedate.setEnabled(false);
+                siteinfo.setEnabled(false);
+                deletebtn.setVisibility(View.INVISIBLE);
 
             }
         });
@@ -221,6 +238,12 @@ public class DetailTab extends Fragment {
         PlacesClient placesClient = Places.createClient(manageSiteActivity);
         final View dialogView = View.inflate(manageSiteActivity, R.layout.picker, null);
         final AlertDialog alertDialog = new AlertDialog.Builder(manageSiteActivity).create();
+
+        datePicker = dialogView.findViewById(R.id.date_picker);
+        timePicker = dialogView.findViewById(R.id.time_picker);
+
+
+
         sitedate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -228,8 +251,9 @@ public class DetailTab extends Fragment {
                     @Override
                     public void onClick(View view) {
 
-                        DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
-                        TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
+//
+//                        datePicker = dialogView.findViewById(R.id.date_picker);
+//                        timePicker = dialogView.findViewById(R.id.time_picker);
 
                         Calendar calendar = new GregorianCalendar(datePicker.getYear(),
                                 datePicker.getMonth(),
@@ -239,7 +263,8 @@ public class DetailTab extends Fragment {
 
                         long time = calendar.getTimeInMillis();
 
-                        site.setDateTime(time);
+//                        site.setDateTime(time);
+                        dateTime = time;
 
                         sitedate.setText(convertDate(time));
 
@@ -260,7 +285,7 @@ public class DetailTab extends Fragment {
             if(resultCode==RESULT_OK){
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 sitelocation.setText(place.getAddress());
-                site.setLocation(place.getAddress());
+//                site.setLocation(place.getAddress());
             }
         }else if(resultCode == AutocompleteActivity.RESULT_ERROR){
             Status status = Autocomplete.getStatusFromIntent(data);

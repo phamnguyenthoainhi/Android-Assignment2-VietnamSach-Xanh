@@ -249,16 +249,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     case R.id.site_menu:
                         System.out.println(Log.d(TAG, "onNavigationItemSelected: currentuser" + (currentUser == null)));
                         if (currentUser == null) {
-                            System.out.println("hello yes");
                             startActivity(new Intent(MapsActivity.this, SignInActivity.class));
 
                         } else {
-                            System.out.println("hello no");
                             startActivity(new Intent(MapsActivity.this, SitesActivity.class));
                         }
                         break;
                     case R.id.account_menu:
-                        startActivity(new Intent(MapsActivity.this, ManageAccountActivity.class));
+                        if (currentUser == null) {
+                            startActivity(new Intent(MapsActivity.this, SignInActivity.class));
+                        } else {
+                            startActivity(new Intent(MapsActivity.this, ManageAccountActivity.class));
+
+                        }
                         break;
                 }
                 return true;
