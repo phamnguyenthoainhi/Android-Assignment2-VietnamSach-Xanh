@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.rmit.androidass2.R;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -22,7 +23,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
@@ -92,7 +92,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 token = instanceIdResult.getToken();
-                User user = new User(firstname, lastname, phone, gender, email,token);
+                User user = new User(firstname, lastname, phone, gender, email, token);
                 db.collection("Users").document(userId).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -115,13 +115,16 @@ public class SignUpActivity extends AppCompatActivity {
         String userlastname = lastName.getText().toString().trim();
         String userphone = phone.getText().toString().trim();
         String usergender;
+        String useremail = emailSignup.getText().toString().trim();
         if (!isChecked) {
             usergender = "Other";
         } else {
            usergender = gender;
         }
+        System.out.println("registerUser " +useremail);
 
-        return new User(userfirstname, userlastname, userphone, usergender);
+
+        return new User(userfirstname, userlastname, userphone, usergender, useremail);
 
     }
 
@@ -142,8 +145,8 @@ public class SignUpActivity extends AppCompatActivity {
             emailSignup.setError("This field can not be blank");
             return false;
         }
-        if(passwordSignup.getText().toString().trim().equalsIgnoreCase("")){
-            passwordSignup.setError("This field can not be blank");
+        if(passwordSignup.getText().toString().trim().equalsIgnoreCase("") || passwordSignup.getText().length() < 5){
+            passwordSignup.setError("This field can not be blank and less than 5 characters");
             return false;
         }
 
@@ -165,7 +168,9 @@ public class SignUpActivity extends AppCompatActivity {
                                 Log.d(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 User signedUpUser = registerUser();
-                                writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(),emailSignup.getText().toString());
+
+
+                                writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(), signedUpUser.getEmail());
                                 startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
                             } else {
                                 // If sign in fails, display a message to the user.
@@ -179,6 +184,7 @@ public class SignUpActivity extends AppCompatActivity {
                     });
         }
     }
+
     public void hideKeyBoard(View view) {
         InputMethodManager inputMethodManager =
                 (InputMethodManager) getSystemService(

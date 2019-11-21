@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.rmit.androidass2.R;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,14 +18,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class InviteActivity extends AppCompatActivity {
 
@@ -60,9 +55,29 @@ public class InviteActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()){
                             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-
+//                            User user = documentSnapshot.toObject(User.class);
+//                            if(user.getUserNotifications().size()>0){
+//                                notifications.addAll(user.getUserNotifications());
+//                            }
 
                             UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", (String) bundle.get("siteId"), userId, documentSnapshot.getId());
+
+//                            List<FieldValue> fieldValues = new ArrayList<>();
+//                            for(UserNotification userNotification:notifications){
+//                                fieldValues.add(FieldValue.arrayUnion(userNotification));
+//                            }
+//
+//                            List<HashMap<String,String>> notifs = new ArrayList<>();
+//
+//                            for(UserNotification userNotification:notifications){
+//                                HashMap<String,String> notif = new HashMap<>();
+//                                notif.put("content",userNotification.getContent());
+//                                notif.put("type",userNotification.getType());
+//                                notif.put("siteId",userNotification.getSiteId());
+//                                notif.put("from",userId);
+//                                notif.put("to",documentSnapshot.getId());
+//                                notifs.add(notif);
+//                            }
 
                             db.collection("Notifications").add(userNotification)
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

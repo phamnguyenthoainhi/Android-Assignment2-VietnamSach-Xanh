@@ -3,7 +3,6 @@ package android.rmit.androidass2;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +27,8 @@ public class OutcomeTab extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String TAG = "Outcome Tab";
     private EditText garbage;
-    // EditText volunteers;
+    Button edit;
+     EditText volunteers;
 
     void fetchDataReport(String id){
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -79,19 +79,45 @@ public class OutcomeTab extends Fragment {
         View view = inflater.inflate(R.layout.outcome_tab, container, false);
 
         garbage = view.findViewById(R.id.noGarbage);
+        volunteers = view.findViewById(R.id.noVolunteers);
+        garbage.setEnabled(false);
+        volunteers.setEnabled(false);
+
+        final Button edit = view.findViewById(R.id.editbuttonoutcome);
+        final Button save = view.findViewById(R.id.savebuttonoutcome);
+
+
+        save.setVisibility(View.INVISIBLE);
+
+        edit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                save.setVisibility(View.VISIBLE);
+                edit.setVisibility(View.INVISIBLE);
+                garbage.setEnabled(true);
+                volunteers.setEnabled(true);
+
+            }
+        });
+
+
+
 
 
 
 
         ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
-        final String sid = manageSiteActivity.getId();
+        final String sid = manageSiteActivity.getid();
 
         fetchDataReport(sid);
 
-        Button save = view.findViewById(R.id.savebuttonoutcome);
+
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext())
                         .setTitle("Confirmation")
                         .setMessage("Do you want to update?")
@@ -108,6 +134,11 @@ public class OutcomeTab extends Fragment {
                             }
                         });
                 builder.create().show();
+                save.setVisibility(View.INVISIBLE);
+
+                edit.setVisibility(View.VISIBLE);
+                garbage.setEnabled(false);
+                volunteers.setEnabled(false);
             }
         });
 

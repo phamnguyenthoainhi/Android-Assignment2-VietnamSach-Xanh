@@ -4,8 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#081B0202"
     android:orientation="vertical"
-    tools:context=".SitesActivity">
+    tools:context="android.rmit.androidass2nhi.SitesActivity">
+
+    <Button
+        android:id="@+id/exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
 
@@ -18,20 +24,25 @@
         android:background="@drawable/rounded_button"
 
         android:backgroundTint="#A30CCCD3"
-        android:paddingLeft="85dp"
-        android:paddingTop="5dp"
-        android:paddingRight="85dp"
-        android:paddingBottom="5dp"
+        android:paddingLeft="70dp"
+        android:paddingRight="70dp"
 
         android:text="Create A new Site !"
         android:textColor="#FFFFFF"
 
-        android:textSize="18sp">
+        android:textSize="14sp">
 
     </Button>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/my_recycler_view"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:id="@+id/swipetorefresh">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/my_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 </LinearLayout>

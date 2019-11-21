@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".ManageSiteActivity">
+    tools:context="android.rmit.androidass2nhi.ManageSiteActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

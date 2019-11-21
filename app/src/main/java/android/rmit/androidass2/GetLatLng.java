@@ -1,9 +1,7 @@
 package android.rmit.androidass2;
 
 import android.os.AsyncTask;
-import android.rmit.androidass2.MapsActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 

@@ -9,12 +9,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.rmit.androidass2.R;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,11 +27,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Formatter;
 import java.util.List;
-import java.util.Locale;
 
 public class SiteDetail extends AppCompatActivity {
     TextView sitelocation;
@@ -79,36 +75,33 @@ public class SiteDetail extends AppCompatActivity {
     }
 
     public String convertDate(long millsec) {
+        Calendar calendar = Calendar.getInstance();
 
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yy hh:mm", Locale.getDefault());
+        calendar.setTimeInMillis(millsec);
 
-//        Calendar calendar = Calendar.getInstance();
-//
-//        calendar.setTimeInMillis(millsec);
-//
-//        int mYear = calendar.get(Calendar.YEAR);
-//        int mMonth = calendar.get(Calendar.MONTH);
-//        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
-//
-//        int mHour = calendar.get(Calendar.HOUR);
-//        int mMinute = calendar.get(Calendar.MINUTE);
-//
-//        String s = "";
-//
-//        if (mHour <= 9 && mMinute <= 9) {
-//            s = "0" + mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-//        }
-//        if (mHour <= 9 && mMinute > 9) {
-//            s = "0" + mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-//        }
-//        if (mHour > 9 && mMinute > 9) {
-//            s = mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-//        }
-//        if (mHour > 9 && mMinute  <= 9) {
-//            s = mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
-//        }
+        int mYear = calendar.get(Calendar.YEAR);
+        int mMonth = calendar.get(Calendar.MONTH);
+        int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        return simpleDateFormat.format(millsec);
+        int mHour = calendar.get(Calendar.HOUR);
+        int mMinute = calendar.get(Calendar.MINUTE);
+
+        String s = "";
+
+        if (mHour <= 9 && mMinute <= 9) {
+            s = "0" + mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+        if (mHour <= 9 && mMinute > 9) {
+            s = "0" + mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+        if (mHour > 9 && mMinute > 9) {
+            s = mHour + ":" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+        if (mHour > 9 && mMinute  <= 9) {
+            s = mHour + ":" + "0" + mMinute + ", " + mDay + "/" + mMonth + "/" + mYear;
+        }
+
+        return s;
     }
 
 

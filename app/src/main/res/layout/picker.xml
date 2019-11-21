@@ -9,24 +9,42 @@
 
     <DatePicker
         android:id="@+id/date_picker"
-        android:layout_width="match_parent"
-        android:calendarViewShown="true"
-        android:spinnersShown="false"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_weight="4"
-        android:layout_height="0dp" />
+        android:calendarViewShown="true"
+        android:headerBackground="#A30CCCD3"
+        android:spinnersShown="false" />
 
     <TimePicker
         android:id="@+id/time_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_weight="4"
-        android:layout_width="match_parent"
-        android:layout_height="0dp" />
+        android:headerBackground="#A30CCCD3" />
 
     <Button
         android:id="@+id/date_time_set"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+
+        android:layout_marginTop="15dp"
+
+
+        android:layout_marginBottom="15dp"
         android:layout_weight="1"
-        android:layout_width="match_parent"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="#A30CCCD3"
+
+        android:paddingLeft="85dp"
+
+
+        android:paddingRight="85dp"
         android:text="Set"
-        android:layout_height="0dp" />
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
 
 </LinearLayout>
 </ScrollView>

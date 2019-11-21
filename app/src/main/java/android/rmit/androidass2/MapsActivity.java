@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -60,6 +59,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -67,8 +67,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener,
-        SiteAdapter.SiteViewHolder.OnSiteListener, SearchItemAdapter.SearchItemViewHolder.OnSiteListener {
+        GoogleMap.OnInfoWindowClickListener, SearchItemAdapter.SearchItemViewHolder.OnSiteListener {
 
     private static final String TAG = "MapsActivity";
     private EditText searchbar;
@@ -83,15 +82,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseAuth mAuth;
     FirebaseUser currentUser;
     RecyclerView recyclerView;
-
+    LatLng myLocation;
     LinearLayout mapLayout;
 
     ArrayList<Site> sites;
     ArrayList<Site> searchsites;
     ArrayList<LatLng> latLngs = new ArrayList<LatLng>();
     LatLngBounds latLngbounce;
-    LatLngBounds.Builder builder;
-
+    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+    private LatLngBounds.Builder bounds2;
     //    FusedLocationProviderClient fusedLocationProviderClient;
     Address address;
 
@@ -99,7 +98,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStart() {
         super.onStart();
         currentUser = mAuth.getCurrentUser();
-
     }
 
     @Override
@@ -123,19 +121,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         initRecyclerView();
 
 
-//        todetails.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startActivity(new Intent(MapsActivity.this, ManageSiteActivity.class));
-//            }
-//
-//        });
-
         searchbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 recyclerView.setVisibility(View.VISIBLE);
-                initRecyclerView();
+
             }
         });
 
@@ -177,6 +167,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+            
+        
+
+       
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -187,7 +182,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng destination = new LatLng(40.7057, -73.9964);
 
 //        drawRoute(origin, destination);
-        getPosition(MapsActivity.this);
         createNavigationBar();
 
     }
@@ -221,7 +215,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onSiteClick(int position) {
-        Toast.makeText(this, ""+position, Toast.LENGTH_SHORT).show();
+        final int i = position;
+        GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
+            @Override
+            public void processFinish(LatLng output) {
+                Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
+                createMarker(output.latitude,output.longitude,sites.get(i).getName(),sites.get(i).getId());
+                builder.include(output);
+                drawRoute(myLocation, new LatLng(output.latitude, output.longitude));
+
+            }
+        });
+
+        getLatLng.execute(constructUrl(sites.get(i).getLocation()));
+
 
     }
 
@@ -233,15 +240,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                System.out.println("onNavigationItemSelected: currentuser" + currentUser);
+                Log.d(TAG, "onNavigationItemSelected: currentuser" + (currentUser == null));
                 switch (menuItem.getItemId()) {
                     case R.id.home_menu:
                         menuItem.setChecked(true);
                         break;
                     case R.id.site_menu:
+                        System.out.println(Log.d(TAG, "onNavigationItemSelected: currentuser" + (currentUser == null)));
                         if (currentUser == null) {
+                            System.out.println("hello yes");
                             startActivity(new Intent(MapsActivity.this, SignInActivity.class));
 
                         } else {
+                            System.out.println("hello no");
                             startActivity(new Intent(MapsActivity.this, SitesActivity.class));
                         }
                         break;
@@ -255,6 +267,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void fetchSites() {
+        Log.d(TAG, "fetchSites: called");
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
@@ -266,16 +279,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-//                                sites = new ArrayList<>();
+
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 Log.d(TAG, document.getId() + " => " + document.getData());
                                 Site site = document.toObject(Site.class);
                                 site.setId(document.getId());
                                 sites.add(site);
                             }
+                          
                             adapter.notifyDataSetChanged();
                             addMarkers();
-
+                            
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
@@ -284,10 +298,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private Address geoLocate(Site site) {
+
         try {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             if (site != null) {
-                List<Address> addressList = geocoder.getFromLocationName("11, Tran Hung Dao, Ho Chi Minh", 1);
+                List<Address> addressList = geocoder.getFromLocationName(site.getLocation(), 1);
                 while (addressList.size() == 0 ) {
                     addressList = geocoder.getFromLocationName(site.getLocation(), 1);
                 }
@@ -320,6 +335,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setPadding(0, 0, 30, 0);
         mMap.setOnInfoWindowClickListener(this);
+        getPosition(MapsActivity.this);
 
 
     }
@@ -331,7 +347,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void drawRoute(LatLng origin, LatLng destination) {
         String url = constructUrl(origin, destination);
-        new RetrieveDirection().execute(url);
+        new RetrieveDirection(this).execute(url);
     }
 
     public String constructUrl(LatLng origin, LatLng destination) {
@@ -366,11 +382,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    class RetrieveDirection extends AsyncTask<String, Void, String> {
+    private static class RetrieveDirection extends AsyncTask<String, Void, String> {
         private Exception exception;
         String data = "";
         HttpURLConnection connection = null;
 
+        private WeakReference<MapsActivity> weakReference;
+
+        RetrieveDirection(MapsActivity context){
+            weakReference = new WeakReference<>(context);
+        }
 
         @Override
         protected String doInBackground(String... urls) {
@@ -405,14 +426,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected void onPostExecute(String response) {
-            new ParseDirection().execute(response);
+            new ParseDirection(weakReference.get()).execute(response);
 
         }
 
     }
 
 
-    class ParseDirection extends AsyncTask<String, Void, List<List<LatLng>>> {
+    private static class ParseDirection extends AsyncTask<String, Void, List<List<LatLng>>> {
+
+        private WeakReference<MapsActivity> weakReference;
+
+        ParseDirection(MapsActivity context){
+            weakReference = new WeakReference<>(context);
+        }
+
         @Override
         protected List<List<LatLng>> doInBackground(String... json) {
             List<List<LatLng>> routes = new ArrayList<>();
@@ -434,10 +462,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polylineOptions.color(Color.BLUE);
 
                 }
-                mMap.addMarker(new MarkerOptions().position(result.get(0).get(0)).title("Start"));
-                mMap.addMarker(new MarkerOptions().position(result.get(result.size() - 1).get((result.get(result.size() - 1)).size() - 1)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
-                mMap.addPolyline(polylineOptions);
+                MapsActivity activity = weakReference.get();
+                activity.mMap.addMarker(new MarkerOptions().position(result.get(0).get(0)).title("Start"));
+                activity.mMap.addMarker(new MarkerOptions().position(result.get(result.size() - 1).get((result.get(result.size() - 1)).size() - 1)));
+                activity.mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
+                activity.mMap.addPolyline(polylineOptions);
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -459,7 +488,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     builder.include(output);
                     LatLngBounds bounds = builder.build();
                     mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 80);
+                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
                     mMap.animateCamera(cameraUpdate);
 
                 }
@@ -482,11 +511,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onSuccess(Location location) {
 
-                LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+
+                myLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
 
-                builder = new LatLngBounds.Builder();
+
                 builder.include(myLocation);
 
             }

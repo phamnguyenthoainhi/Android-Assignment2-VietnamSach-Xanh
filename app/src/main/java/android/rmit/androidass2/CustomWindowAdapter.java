@@ -1,12 +1,10 @@
 package android.rmit.androidass2;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.rmit.androidass2.R;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;

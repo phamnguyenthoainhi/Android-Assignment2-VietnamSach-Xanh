@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context=".SignInActivity"
+    tools:context="android.rmit.androidass2nhi.SignInActivity"
     android:onClick="hideKeyBoard"
     >
     <ImageView
@@ -64,12 +64,12 @@
         android:background="@drawable/rounded_button"
         android:backgroundTint="#A30CCCD3"
         android:paddingLeft="85dp"
-        android:paddingTop="5dp"
+
         android:paddingRight="85dp"
-        android:paddingBottom="5dp"
+
         android:text="Sign In"
         android:textColor="#FFFFFF"
-        android:textSize="18sp"
+        android:textSize="16sp"
 
 
         />

@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.rmit.androidass2.R;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -91,11 +92,18 @@ public class SignInActivity extends AppCompatActivity {
                                     editor.putString("uid", user.getUid());
                                     editor.commit();
 
-                                    startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
+
+
+                                        startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
+
                                 }
 
 //                            updateUI(user);
                             } else {
+                                emailSignIn.setFocusable(true);
+                                emailSignIn.setError("Email is incorrect or has not been signed up");
+
+                                passwordSignIn.setError("Incorrect password");
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithEmail:failure", task.getException());
                                 Toast.makeText(SignInActivity.this, "Authentication failed.",
@@ -116,7 +124,6 @@ public class SignInActivity extends AppCompatActivity {
         inputMethodManager.hideSoftInputFromWindow(view.
                 getWindowToken(), 0);
     }
-
 
 
 
