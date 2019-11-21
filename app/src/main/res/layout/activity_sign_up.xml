@@ -9,7 +9,7 @@
     android:layout_height="wrap_content"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2nhi.SignUpActivity"
+    tools:context="android.rmit.androidass2.SignUpActivity"
 
     android:onClick="hideKeyBoard">
 

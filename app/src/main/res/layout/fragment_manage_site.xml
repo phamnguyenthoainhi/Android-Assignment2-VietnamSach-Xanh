@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2nhi.ui.main.PlaceholderFragment">
+    tools:context="android.rmit.androidass2.ui.main.PlaceholderFragment">
 
     <TextView
         android:id="@+id/section_label"

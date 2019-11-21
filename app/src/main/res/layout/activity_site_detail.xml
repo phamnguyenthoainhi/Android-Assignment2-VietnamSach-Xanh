@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:paddingLeft="20dp"
     android:paddingRight="20dp"
-    tools:context="android.rmit.androidass2nhi.SiteDetail">
+    tools:context="android.rmit.androidass2.SiteDetail">
 
     <Button
         android:id="@+id/back"

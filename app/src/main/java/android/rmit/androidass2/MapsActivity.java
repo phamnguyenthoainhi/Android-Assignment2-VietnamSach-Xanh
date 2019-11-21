@@ -463,8 +463,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
                 MapsActivity activity = weakReference.get();
-                activity.mMap.addMarker(new MarkerOptions().position(result.get(0).get(0)).title("Start"));
-                activity.mMap.addMarker(new MarkerOptions().position(result.get(result.size() - 1).get((result.get(result.size() - 1)).size() - 1)));
                 activity.mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
                 activity.mMap.addPolyline(polylineOptions);
 

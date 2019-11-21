@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#081B0202"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2nhi.SitesActivity">
+    tools:context="android.rmit.androidass2.SitesActivity">
 
     <Button
         android:id="@+id/exit"

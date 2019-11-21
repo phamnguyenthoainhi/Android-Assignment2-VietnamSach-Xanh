@@ -5,6 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context="android.rmit.androidass2nhi.SplashScreenActivity">
+    tools:context="android.rmit.androidass2.SplashScreenActivity">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

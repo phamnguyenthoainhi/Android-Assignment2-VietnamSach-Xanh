@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
 
-    tools:context="android.rmit.androidass2nhi.MapsActivity">
+    tools:context="android.rmit.androidass2.MapsActivity">
 
     <fragment
 

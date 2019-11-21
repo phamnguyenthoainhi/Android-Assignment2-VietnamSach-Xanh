@@ -101,12 +101,6 @@ public class OutcomeTab extends Fragment {
             }
         });
 
-
-
-
-
-
-
         ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
         final String sid = manageSiteActivity.getid();
 

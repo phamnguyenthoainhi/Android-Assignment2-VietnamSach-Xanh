@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="android.rmit.androidass2nhi.ManageAccountActivity">
+    tools:context="android.rmit.androidass2.ManageAccountActivity">
 
     <TextView
         android:id="@+id/logoutbtn"

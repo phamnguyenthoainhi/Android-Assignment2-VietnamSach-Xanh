@@ -267,7 +267,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             return false;
         }
 
-        
+
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
@@ -331,8 +331,9 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
                     .setPositiveButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
 
+                            dialogInterface.dismiss();
+                            adapter.notifyDataSetChanged();
                         }
                     });
             builder.create().show();

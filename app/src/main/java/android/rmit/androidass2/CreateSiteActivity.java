@@ -51,10 +51,6 @@ public class CreateSiteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_site);
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-//        final AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
-//
-
         locationInput = findViewById(R.id.location);
 
 

@@ -24,9 +24,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -42,34 +44,71 @@ public class SiteDetail extends AppCompatActivity {
     EditText email;
     SharedPreferences sharedPreferences;
     String userId;
+    Button join;
 
-    public void fetchSelectedSite(String selectedSite) {
+    public void fetchSelectedSite(final String selectedSite) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         firestore.setFirestoreSettings(settings);
 
-        db.collection("Sites").document(selectedSite).get()
+        db.collection("SitesVolunteers").document(selectedSite).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        site = documentSnapshot.toObject(Site.class);
 
-                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
+                        if(site!=null) {
+                            site.setId(documentSnapshot.getId());
 
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    site = documentSnapshot.toObject(Site.class);
+                            sitelocation.setText(site.getLocation());
+                            siteinfo.setText(site.getName());
+                            sitedate.setText(convertDate(site.getDateTime()));
+                            Log.d(TAG, "onComplete: site detail object" + site.getDateTime());
 
-                    site.setId(documentSnapshot.getId());
-                    sitelocation.setText(site.getLocation());
-                    siteinfo.setText(site.getName());
-                    sitedate.setText(convertDate(site.getDateTime()));
-                    Log.d(TAG, "onComplete: site detail object"+ site.getDateTime());
+                            if (site.getOwner() != null && site.getOwner() == userId) {
+                                join.setVisibility(View.GONE);
+                            }
+                            if (site.getVolunteers() != null) {
+                                if (site.getVolunteers().contains(userId)) {
+                                    join.setVisibility(View.GONE);
+                                }
+                            }
+                        }
+                        else{
+                            db.collection("Sites").document(selectedSite).get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            site = documentSnapshot.toObject(Site.class);
 
 
-                }
-            }
-        })
+                                            site.setId(documentSnapshot.getId());
+
+                                            sitelocation.setText(site.getLocation());
+                                            siteinfo.setText(site.getName());
+                                            sitedate.setText(convertDate(site.getDateTime()));
+                                            if (site.getOwner()!=null && site.getOwner()==userId){
+                                                join.setVisibility(View.GONE);
+                                            }
+                                            db.collection("SitesVolunteers").document(selectedSite)
+                                                    .set(site);
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG,"Failed to fetch site, it might not exist");
+                                        }
+                                    });
+
+
+
+                        }
+                    }
+                })
+
         ;
 
     }
@@ -122,9 +161,7 @@ public class SiteDetail extends AppCompatActivity {
         onNewIntent(getIntent());
         sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
         userId = sharedPreferences.getString("uid",null);
-        final Button join = findViewById(R.id.joinbutton);
-
-
+        join = findViewById(R.id.joinbutton);
 
         join.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,7 +195,8 @@ public class SiteDetail extends AppCompatActivity {
                                                     .addOnFailureListener(new OnFailureListener() {
                                                         @Override
                                                         public void onFailure(@NonNull Exception e) {
-                                                            Log.w(TAG,"Failed to update.");
+                                                            Log.w(TAG,"Failed to update.",e);
+
                                                         }
                                                     });
                                             db.collection("Users").document(userId).get()
@@ -166,8 +204,14 @@ public class SiteDetail extends AppCompatActivity {
                                                         @Override
                                                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                                                             User user = documentSnapshot.toObject(User.class);
+                                                            List<String> volunteeredSites = new ArrayList<>();
                                                             if(user!=null){
-                                                                List<String> volunteeredSites = user.getSites();
+                                                                if(user.getSites()!=null){
+                                                                    volunteeredSites = user.getSites();
+                                                                }
+                                                                else {
+
+                                                                }
                                                                 volunteeredSites.add(site.getId());
                                                                 db.collection("Users").document(userId)
                                                                         .update("sites",volunteeredSites)
@@ -201,7 +245,7 @@ public class SiteDetail extends AppCompatActivity {
                         }
                     });
 
-                }else{
+                }else if (site.getOwner()!=null && site.getOwner()==userId){
                     join.setVisibility(View.GONE);
                 }}
 
@@ -214,9 +258,6 @@ public class SiteDetail extends AppCompatActivity {
             public void onClick(View view) {
                 showDialogInvite();
 
-//                Intent intent = new Intent(SiteDetail.this,InviteActivity.class);
-//                intent.putExtra("siteId",siteId);
-//                startActivity(intent);
             }
         });
 
@@ -251,7 +292,7 @@ public class SiteDetail extends AppCompatActivity {
 
                             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
 
-                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, userId, documentSnapshot.getId());
+                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, userId, documentSnapshot.getId(),site.getName());
 
 
                             db.collection("Notifications").add(userNotification)

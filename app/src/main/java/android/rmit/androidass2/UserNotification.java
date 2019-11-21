@@ -9,16 +9,18 @@ public class UserNotification {
     String siteId;
     String from;
     String to;
+    String siteName;
 
     public UserNotification() {
     }
 
-    public UserNotification(String content, String type, String siteId, String from, String to) {
+    public UserNotification(String content, String type, String siteId, String from, String to, String siteName) {
         this.content = content;
         this.type = type;
         this.siteId = siteId;
         this.from = from;
         this.to = to;
+        this.siteName = siteName;
     }
 
     public String getType() {

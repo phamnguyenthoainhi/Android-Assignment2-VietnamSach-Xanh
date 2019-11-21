@@ -7,8 +7,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_corner"
     android:backgroundTint="#00FFFFFF"
-    android:orientation="vertical"
-    tools:context="android.rmit.androidass2nhi.InviteActivity">
+    android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
