@@ -247,55 +247,29 @@ public class SiteDetail extends AppCompatActivity {
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()){
 
-
-
                             Log.d(TAG, "onComplete: invite "+ task.getResult().getDocuments());
 
+                            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+
+                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, userId, documentSnapshot.getId());
 
 
-//                            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+                            db.collection("Notifications").add(userNotification)
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                        @Override
+                                        public void onSuccess(DocumentReference documentReference) {
+                                            Toast.makeText(SiteDetail.this, "Successfully posted notification", Toast.LENGTH_SHORT).show();
+                                            alertDialog.dismiss();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(SiteDetail.this, "Failed to post notification", Toast.LENGTH_SHORT).show();
+                                            alertDialog.dismiss();
+                                        }
+                                    });
 
-
-
-//                            User user = documentSnapshot.toObject(User.class);
-//                            if(user.getUserNotifications().size()>0){
-//                                notifications.addAll(user.getUserNotifications());
-//                            }
-
-//                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, userId, documentSnapshot.getId());
-
-//                            List<FieldValue> fieldValues = new ArrayList<>();
-//                            for(UserNotification userNotification:notifications){
-//                                fieldValues.add(FieldValue.arrayUnion(userNotification));
-//                            }
-//
-//                            List<HashMap<String,String>> notifs = new ArrayList<>();
-//
-//                            for(UserNotification userNotification:notifications){
-//                                HashMap<String,String> notif = new HashMap<>();
-//                                notif.put("content",userNotification.getContent());
-//                                notif.put("type",userNotification.getType());
-//                                notif.put("siteId",userNotification.getSiteId());
-//                                notif.put("from",userId);
-//                                notif.put("to",documentSnapshot.getId());
-//                                notifs.add(notif);
-//                            }
-
-//                            db.collection("Notifications").add(userNotification)
-//                                    .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                                        @Override
-//                                        public void onSuccess(DocumentReference documentReference) {
-//                                            Toast.makeText(SiteDetail.this, "Successfully posted notification", Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    })
-//                                    .addOnFailureListener(new OnFailureListener() {
-//                                        @Override
-//                                        public void onFailure(@NonNull Exception e) {
-//                                            Toast.makeText(SiteDetail.this, "Failed to post notification", Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    });
-//
-//                            finish();
                         }
                         else{
                             Toast.makeText(SiteDetail.this, "failed to get user", Toast.LENGTH_SHORT).show();

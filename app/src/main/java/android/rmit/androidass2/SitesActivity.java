@@ -267,11 +267,77 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             return false;
         }
 
+        
+
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            sites.remove(viewHolder.getAdapterPosition());
+            final Site site = sites.get(viewHolder.getAdapterPosition());
+//            sites.remove(viewHolder.getAdapterPosition());
 //            TODO: add delete function for backend
-            adapter.notifyDataSetChanged();
+            AlertDialog.Builder builder = new AlertDialog.Builder(SitesActivity.this)
+                    .setTitle("Confirmation")
+                    .setMessage("Do you want to delete this site? \n" + site.getLocation())
+                    .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            db.collection("Sites").document(site.getId())
+                                    .delete()
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            db.collection("SitesVolunteers").document(site.getId())
+                                                    .delete()
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Toast.makeText(SitesActivity.this, "Successfully deleted site.", Toast.LENGTH_SHORT).show();
+                                                            db.collection("Reports").document(site.getId())
+                                                                    .delete()
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            Toast.makeText(SitesActivity.this, "Successfully deleted associated report.", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    })
+                                                                    .addOnFailureListener(new OnFailureListener() {
+                                                                        @Override
+                                                                        public void onFailure(@NonNull Exception e) {
+                                                                            Log.w(TAG,"Failed to delete report.");
+                                                                        }
+                                                                    });
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(TAG,"Failed to delete site with volunteers list.");
+                                                        }
+                                                    });
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG,"Failed to delete site.");
+                                        }
+                                    });
+                            sites.remove(site);
+                            adapter.notifyDataSetChanged();
+
+                        }
+
+
+                    })
+                    .setPositiveButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+
+                        }
+                    });
+            builder.create().show();
+
+//            adapter.notifyDataSetChanged();
 
         }
 
