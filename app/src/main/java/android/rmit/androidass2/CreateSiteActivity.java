@@ -1,13 +1,13 @@
 package android.rmit.androidass2;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.rmit.androidass2.R;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -22,14 +22,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class CreateSiteActivity extends AppCompatActivity {
 
@@ -37,6 +41,9 @@ public class CreateSiteActivity extends AppCompatActivity {
     String TAG="Add site";
     long time;
     String location;
+    EditText locationInput;
+    List<Place.Field> fields;
+    int AUTOCOMPLETE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +52,22 @@ public class CreateSiteActivity extends AppCompatActivity {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        final AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+//        final AutocompleteSupportFragment autocompleteSupportFragment = (AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+//
 
-        autocompleteSupportFragment.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS));
-        autocompleteSupportFragment.setCountry("VN");
-        autocompleteSupportFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(@NonNull Place place) {
-                Log.i("AUTO COMPLETE","Place: "+place.getName()+", "+place.getId());
-                location = place.getAddress();
-            }
+        locationInput = findViewById(R.id.location);
 
+
+
+        fields = Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS);
+
+        locationInput.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onError(@NonNull Status status) {
-                Log.i("AUTO COMPLETE","An error occurred: "+status);
+            public void onClick(View view) {
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,fields)
+                        .setCountry("VN")
+                        .build(CreateSiteActivity.this);
+                startActivityForResult(intent,AUTOCOMPLETE_REQUEST_CODE);
             }
         });
 
@@ -172,7 +181,20 @@ public class CreateSiteActivity extends AppCompatActivity {
 
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==AUTOCOMPLETE_REQUEST_CODE){
+            if(resultCode==RESULT_OK){
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                locationInput.setText(place.getAddress());
+                location = place.getAddress();
+            }
+        }else if(resultCode == AutocompleteActivity.RESULT_ERROR){
+            Status status = Autocomplete.getStatusFromIntent(data);
+            Log.i("Autocomplete", status.getStatusMessage());
+        }else if(resultCode == RESULT_CANCELED){}
+    }
 
     public String convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
