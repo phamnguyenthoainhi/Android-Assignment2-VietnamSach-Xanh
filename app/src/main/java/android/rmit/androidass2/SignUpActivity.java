@@ -172,6 +172,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                                 writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(), signedUpUser.getEmail());
                                 startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+                                finish();
                             } else {
                                 // If sign in fails, display a message to the user.
                                 emailSignup.setText("");

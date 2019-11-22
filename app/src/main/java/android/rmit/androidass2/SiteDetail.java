@@ -67,7 +67,7 @@ public class SiteDetail extends AppCompatActivity {
                             sitedate.setText(convertDate(site.getDateTime()));
                             Log.d(TAG, "onComplete: site detail object" + site.getDateTime());
 
-                            if (site.getOwner() != null && site.getOwner() == userId) {
+                            if (site.getOwner() != null && site.getOwner().equals(userId)) {
                                 join.setVisibility(View.GONE);
                             }
                             if (site.getVolunteers() != null) {
@@ -89,7 +89,7 @@ public class SiteDetail extends AppCompatActivity {
                                             sitelocation.setText(site.getLocation());
                                             siteinfo.setText(site.getName());
                                             sitedate.setText(convertDate(site.getDateTime()));
-                                            if (site.getOwner()!=null && site.getOwner()==userId){
+                                            if (site.getOwner()!=null && site.getOwner().equals(userId)){
                                                 join.setVisibility(View.GONE);
                                             }
                                             db.collection("SitesVolunteers").document(selectedSite)

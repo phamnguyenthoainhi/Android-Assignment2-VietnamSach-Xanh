@@ -28,6 +28,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SitesActivity extends AppCompatActivity implements SiteAdapter.SiteViewHolder.OnSiteListener {
     private FirebaseAuth mAuth;
@@ -125,6 +126,58 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         recyclerView.setAdapter(adapter);
     }
 
+    private void deleteSite(final String collectionName, String siteId){
+        db.collection(collectionName).document(siteId)
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(SitesActivity.this, "Successfully deleted specified document in collection" +collectionName+ ".", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG,"Failed to delete in collection "+collectionName+".");
+                    }
+                });
+    }
+
+    private void deleteSiteInUserList(final String userId, final String siteId){
+        db.collection("Users").document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        User currentUser = documentSnapshot.toObject(User.class);
+                        if (currentUser!=null && currentUser.getSites()!=null){
+                            List<String> joinedSite = currentUser.getSites();
+                            joinedSite.remove(siteId);
+                            db.collection("Users").document(userId)
+                                    .update("sites",joinedSite)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(SitesActivity.this, "Successfully removed site from user "+ userId +"'s list.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Log.w(TAG, "Failed to remove site from user "+userId+"'s list.");
+                                        }
+                                    });
+
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG,"Failed to get user");
+                    }
+                });
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -171,17 +224,6 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        ArrayList<Site> prevList = new ArrayList<>();
-//        prevList.addAll(sites);
-//        fetchSiteByOwnerId();
-//        if (prevList.size()!=sites.size()){
-//            adapter.notifyDataSetChanged();
-//        }
-//    }
-
     @Override
     public void onSiteClick(int position) {
         sites.get(position);
@@ -202,47 +244,26 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
                 .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        db.collection("Sites").document(site.getId())
-                                .delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+
+                        db.collection("SitesVolunteers").document(site.getId()).get()
+                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                     @Override
-                                    public void onSuccess(Void aVoid) {
-                                        db.collection("SitesVolunteers").document(site.getId())
-                                                .delete()
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Toast.makeText(SitesActivity.this, "Successfully deleted site.", Toast.LENGTH_SHORT).show();
-                                                        db.collection("Reports").document(site.getId())
-                                                                .delete()
-                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-                                                                        Toast.makeText(SitesActivity.this, "Successfully deleted associated report.", Toast.LENGTH_SHORT).show();
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        Log.w(TAG,"Failed to delete report.");
-                                                                    }
-                                                                });
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.w(TAG,"Failed to delete site with volunteers list.");
-                                                    }
-                                                });
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w(TAG,"Failed to delete site.");
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        Site result = documentSnapshot.toObject(Site.class);
+                                        if (result!=null && result.getVolunteers()!=null){
+                                            List<String> volunteers = result.getVolunteers();
+                                            for(final String volunteer:volunteers){
+                                                deleteSiteInUserList(volunteer,site.getId());
+                                            }
+                                        }
+                                        deleteSite("SitesVolunteers",site.getId());
                                     }
                                 });
+
+                        deleteSite("Sites",site.getId());
+                        deleteSite("Reports",site.getId());
+
+
                         sites.remove(site);
                         adapter.notifyDataSetChanged();
 
@@ -272,55 +293,30 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             final Site site = sites.get(viewHolder.getAdapterPosition());
-//            sites.remove(viewHolder.getAdapterPosition());
-//            TODO: add delete function for backend
             AlertDialog.Builder builder = new AlertDialog.Builder(SitesActivity.this)
                     .setTitle("Confirmation")
                     .setMessage("Do you want to delete this site? \n" + site.getLocation())
                     .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            db.collection("Sites").document(site.getId())
-                                    .delete()
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            db.collection("SitesVolunteers").document(site.getId()).get()
+                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                         @Override
-                                        public void onSuccess(Void aVoid) {
-                                            db.collection("SitesVolunteers").document(site.getId())
-                                                    .delete()
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Toast.makeText(SitesActivity.this, "Successfully deleted site.", Toast.LENGTH_SHORT).show();
-                                                            db.collection("Reports").document(site.getId())
-                                                                    .delete()
-                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                        @Override
-                                                                        public void onSuccess(Void aVoid) {
-                                                                            Toast.makeText(SitesActivity.this, "Successfully deleted associated report.", Toast.LENGTH_SHORT).show();
-                                                                        }
-                                                                    })
-                                                                    .addOnFailureListener(new OnFailureListener() {
-                                                                        @Override
-                                                                        public void onFailure(@NonNull Exception e) {
-                                                                            Log.w(TAG,"Failed to delete report.");
-                                                                        }
-                                                                    });
-                                                        }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.w(TAG,"Failed to delete site with volunteers list.");
-                                                        }
-                                                    });
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            Log.w(TAG,"Failed to delete site.");
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                            Site result = documentSnapshot.toObject(Site.class);
+                                            if (result!=null && result.getVolunteers()!=null){
+                                                List<String> volunteers = result.getVolunteers();
+                                                for(final String volunteer:volunteers){
+                                                    deleteSiteInUserList(volunteer,site.getId());
+                                                }
+                                            }
+                                            deleteSite("SitesVolunteers",site.getId());
                                         }
                                     });
+
+                            deleteSite("Sites",site.getId());
+                            deleteSite("Reports",site.getId());
+
                             sites.remove(site);
                             adapter.notifyDataSetChanged();
 
@@ -338,7 +334,6 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
                     });
             builder.create().show();
 
-//            adapter.notifyDataSetChanged();
 
         }
 

@@ -114,6 +114,7 @@ public class ManageAccountActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mAuth.signOut();
                 startActivity(new Intent(ManageAccountActivity.this, MapsActivity.class));
+                finish();
             }
         });
         edit.setOnClickListener(new View.OnClickListener() {

@@ -72,6 +72,7 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
+                finish();
             }
         });
     }
@@ -95,7 +96,7 @@ public class SignInActivity extends AppCompatActivity {
 
 
                                         startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
-
+                                        finish();
                                 }
 
 //                            updateUI(user);
