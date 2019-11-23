@@ -20,12 +20,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
-
+import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+
 
 public class NumberOfVolunteerTab extends Fragment {
 
@@ -38,14 +40,14 @@ public class NumberOfVolunteerTab extends Fragment {
     TextView volunteerphone;
     TextView volunteeremail;
 
-    TableLayout volunteerTable;
+
     ArrayList<User> volunteers = new ArrayList<>();
     User volunteer;
     RecyclerView recyclerView;
+    Context context;
 
 
     public ArrayList<String> fetchVolunteersId(String id) {
-        Log.d(TAG, "fetchVolunteersId: called");
 
         db.collection("Sites").document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -53,9 +55,9 @@ public class NumberOfVolunteerTab extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         DocumentSnapshot documentSnapshot = task.getResult();
 
-                       volunteersid = (ArrayList<String>) documentSnapshot.get("volunteers");
+                        volunteersid = (ArrayList<String>) documentSnapshot.get("volunteers");
 
-                       fetchvolunteerinfo();
+                        fetchvolunteerinfo();
 
                     }
                 });
@@ -66,24 +68,28 @@ public class NumberOfVolunteerTab extends Fragment {
     public void fetchvolunteerinfo() {
 
         if (!volunteersid.isEmpty()) {
-
+            Log.d(TAG, "fetchvolunteerinfo: not empty");
             for (String id: volunteersid) {
                 db.collection("Users").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         volunteer = new User();
+                        volunteers = new ArrayList<>();
                         volunteer.setEmail(task.getResult().get("email").toString());
                         volunteer.setFirstname(task.getResult().get("firstname").toString());
                         volunteer.setLastname(task.getResult().get("lastname").toString());
                         volunteer.setPhone(task.getResult().get("phone").toString());
 
-//                        volunteername.setText(task.getResult().get("firstname") +" "+task.getResult().get("lastname"));
-//
-//                    volunteeremail.setText(task.getResult().get("email").toString());
-//                    volunteerphone.setText(task.getResult().get("phone").toString());
 
-                    volunteers.add(volunteer);
-                    notifyAll();
+                        volunteers.add(volunteer);
+                        Log.d(TAG, "onComplete: fetch volunteers" + volunteers.toString());
+                        recyclerView.setHasFixedSize(true);
+                        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+                        recyclerView.setLayoutManager(layoutManager);
+                        VolunteerAdapter volunteerAdapter = new VolunteerAdapter(volunteers, context);
+                        recyclerView.setAdapter(volunteerAdapter);
+
+
 
                     }
                 });
@@ -99,24 +105,26 @@ public class NumberOfVolunteerTab extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: called voluntter");
+
         View view = inflater.inflate(R.layout.volunteer_tab, container, false);
+
 
 
         ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
         String sid = manageSiteActivity.getid();
+        context = getContext();
         recyclerView = view.findViewById(R.id.vltrecyclerview);
-        
+
         Log.d(TAG, "onCreateView: id "+ sid);
+
         fetchVolunteersId(sid);
-        User user = new User();
-        user.setFirstname("Nhi");
-        user.setPhone("1232");
-        user.setLastname("pham");
-        user.setEmail("aaa");
-        volunteers.add(user);
-        VolunteerAdapter volunteerAdapter = new VolunteerAdapter(volunteers, getContext());
-        recyclerView.setAdapter(volunteerAdapter);
+
+
+
+
+
+
+
 
         return view;
     }

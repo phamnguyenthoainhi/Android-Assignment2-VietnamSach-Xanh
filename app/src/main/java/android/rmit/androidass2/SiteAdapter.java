@@ -58,8 +58,7 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
             super(v);
             sitelocation = v.findViewById(R.id.sitelocation);
             sitename = v.findViewById(R.id.sitename);
-            deletesite = v.findViewById(R.id.deleteasitee);
-            deletesite.setVisibility(View.INVISIBLE);
+
 
             this.onSiteListener = onSiteListener;
             v.setOnClickListener(this);
@@ -70,7 +69,6 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
 
         @Override
         public void onClick(View v) {
-            deletesite.setVisibility(View.INVISIBLE);
             onSiteListener.onSiteClick(getAdapterPosition());
             
         }

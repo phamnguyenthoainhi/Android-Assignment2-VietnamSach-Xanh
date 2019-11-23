@@ -1,6 +1,7 @@
 package android.rmit.androidass2;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,8 +18,10 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,8 +30,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -45,6 +54,11 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.model.AddressComponents;
+import com.google.android.libraries.places.api.model.OpeningHours;
+import com.google.android.libraries.places.api.model.PhotoMetadata;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.PlusCode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -62,9 +76,15 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener, SearchItemAdapter.SearchItemViewHolder.OnSiteListener {
@@ -84,9 +104,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     RecyclerView recyclerView;
     LatLng myLocation;
     LinearLayout mapLayout;
+    TextView filterbtn;
+    RadioGroup filterradiogroup;
 
     ArrayList<Site> sites;
-    ArrayList<Site> searchsites;
+    ArrayList<Site> filtersites;
+    ArrayList<Site> afterfiltersites;
+    List<String> selectedCities =new ArrayList<>();;
+
+
+    List<String> cityList = new ArrayList<>();
+
     ArrayList<LatLng> latLngs = new ArrayList<LatLng>();
     LatLngBounds latLngbounce;
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -119,6 +147,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         fetchSites();
         initRecyclerView();
+        filterbtn = findViewById(R.id.filterbtn);
+        filterbtn.setClickable(true);
+
+        filterbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: hello");
+                showdialog(v);
+            }
+        });
 
 
         searchbar.setOnClickListener(new View.OnClickListener() {
@@ -167,10 +205,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-            
-        
 
-       
+
+
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -218,7 +256,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         final int i = position;
         GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
             @Override
-            public void processFinish(LatLng output) {
+            public void processFinish(LatLng output, String city) {
                 Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                 createMarker(output.latitude,output.longitude,sites.get(i).getName(),sites.get(i).getId());
                 builder.include(output);
@@ -289,10 +327,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 site.setId(document.getId());
                                 sites.add(site);
                             }
-                          
+
                             adapter.notifyDataSetChanged();
                             addMarkers();
-                            
+
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
@@ -478,12 +516,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     public void addMarkers() {
+        cityList = new ArrayList<>();
         for (final Site site: sites) {
 //            createMarker(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude(), sites.get(i).getName(), sites.get(i).getId());
 //            createMarker(geoLocate(sites.get(i)).getLatitude(), geoLocate(sites.get(i)).getLongitude(), sites.get(i).getName(), sites.get(i).getId());
             GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                 @Override
-                public void processFinish(LatLng output) {
+                public void processFinish(LatLng output, String city) {
+                    //Toast.makeText(MapsActivity.this, "Name: " + convert(city), Toast.LENGTH_SHORT).show();
+
+                    cityList.add(city);
                     //Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                     createMarker(output.latitude,output.longitude,site.getName(),site.getId());
                     builder.include(output);
@@ -491,19 +533,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
                     mMap.animateCamera(cameraUpdate);
+                    cityList.add(city);
 
                 }
             });
             getLatLng.execute(constructUrl(site.getLocation()));
 
         }
-//        Log.d(TAG, "addMarkers: buidlder " + builder.toString());
-//        builder.include(new LatLng(10.776080, 106.703040));
-//        LatLngBounds bounds = builder.build();
-//
-//        mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
-//        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 80);
-//        mMap.animateCamera(cameraUpdate);
+
     }
 
     @SuppressLint("MissingPermission")
@@ -523,4 +560,204 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+
+    public void fetchSites2() {
+        Log.d(TAG, "fetchSites: called");
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        firestore.setFirestoreSettings(settings);
+        db.collection("Sites")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Site site = document.toObject(Site.class);
+                                site.setId(document.getId());
+                                filtersites.add(site);
+                            }
+
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
+
+
+
+
+    public void showdialog(View v) {
+        filtersites = new ArrayList<>();
+        afterfiltersites = new ArrayList<>();
+
+
+        final AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
+        final View dialog = getLayoutInflater().inflate(R.layout.filter_layout, null);
+
+        alert.setView(dialog);
+        final AlertDialog alertDialog = alert.create();
+        final List<View> checkBox = new ArrayList<>();
+        List<String> converted = new ArrayList<>();
+        List<String> compare = new ArrayList<>();
+        String search = "City";
+        for(String original:cityList){
+            if(!compare.contains(convert(original).toLowerCase().replaceAll("\\s",""))) {
+                if (original.toLowerCase().contains(search.toLowerCase())) {
+                    converted.add(convert(original.replace(search, "").trim()));
+                    compare.add(convert(original.replace(search, "").trim()).toLowerCase().replaceAll("\\s", ""));
+
+                } else {
+                    compare.add(convert(original).toLowerCase().replaceAll("\\s", ""));
+                    converted.add(convert(original));
+                }
+            }
+        }
+
+        Set<String> filtered = new HashSet<>(converted);
+        converted.clear();
+        converted.addAll(filtered);
+
+        LinearLayout ll = dialog.findViewById(R.id.checkbox_layout);
+
+        for(String city: converted){
+            //Toast.makeText(this, city, Toast.LENGTH_SHORT).show();
+            View cb = getLayoutInflater().inflate(R.layout.filter_checkbox,null);
+            ((CheckBox)cb).setText(city);
+            if(selectedCities.contains(city.toLowerCase().replaceAll("\\s",""))){
+                ((CheckBox)cb).setChecked(true);
+            }
+            checkBox.add(cb);
+
+            ll.addView(cb);
+        }
+
+
+
+
+        //Toast.makeText(MapsActivity.this, converted.toString(), Toast.LENGTH_SHORT).show();
+
+        alertDialog.setCanceledOnTouchOutside(true);
+
+        filterradiogroup = dialog.findViewById(R.id.filterRadioGroup);
+        Button apply = dialog.findViewById(R.id.apply);
+
+        fetchSites2();
+        apply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for(View view: checkBox){
+                    if(((CheckBox)view).isChecked()){
+                        if(!selectedCities.contains(((CheckBox)view).getText().toString().toLowerCase().replaceAll("\\s",""))) {
+                            selectedCities.add(((CheckBox) view).getText().toString().toLowerCase().replaceAll("\\s", ""));
+                        }
+                    }
+                    else{
+                        if(selectedCities.contains(((CheckBox)view).getText().toString().toLowerCase().replaceAll("\\s",""))){
+                            selectedCities.remove(((CheckBox)view).getText().toString().toLowerCase().replaceAll("\\s",""));
+                        }
+                    }
+                }
+                addMarkersByFilter();
+                alertDialog.dismiss();
+
+            }
+        });
+
+
+        filterradiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton checkedbutton = filterradiogroup.findViewById(checkedId);
+                boolean isChecked = checkedbutton.isChecked();
+
+
+                if (isChecked && checkedbutton.getText().equals("6AM - 12AM")) {
+
+                    Log.d(TAG, "onCheckedChanged: 6am");
+                    for (int i = 0; i < filtersites.size(); i++) {
+                        if (convertDate(filtersites.get(i).getDateTime()) <= 12 && convertDate(filtersites.get(i).getDateTime()) >= 6) {
+                            afterfiltersites.add(filtersites.get(i));
+                        }
+                    }
+                }
+                if (isChecked && checkedbutton.getText().equals("1PM - 6PM")) {
+
+                    Log.d(TAG, "onCheckedChanged: 1pm");
+                    for (int i = 0; i < filtersites.size(); i++) {
+                        if (convertDate(filtersites.get(i).getDateTime()) >= 13 && convertDate(filtersites.get(i).getDateTime()) <= 18) {
+                            afterfiltersites.add(filtersites.get(i));
+                            Log.d(TAG, "onCheckedChanged: All sites in 1AM " + convertDate(filtersites.get(i).getDateTime()));
+                        }
+                    }
+                }
+
+
+            }
+        });
+
+        alert.show();
+
+    }
+
+    public int convertDate(long millsec) {
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTimeInMillis(millsec);
+
+
+        int mHour = calendar.get(Calendar.HOUR_OF_DAY);
+//        int mMinute = calendar.get(Calendar.MINUTE);
+
+
+        return mHour;
+    }
+
+    public void addMarkersByFilter() {
+        mMap.clear();
+        Toast.makeText(this, selectedCities.toString(), Toast.LENGTH_SHORT).show();
+        for (final Site site: sites) {
+
+            GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
+                @Override
+                public void processFinish(LatLng output, String city) {
+                    String current = convert(city).toLowerCase().replaceAll("\\s","");
+                    if(selectedCities.contains(current) || afterfiltersites.contains(site)) {
+                        //Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
+                        createMarker(output.latitude, output.longitude, site.getName(), site.getId());
+                        builder.include(output);
+                        LatLngBounds bounds = builder.build();
+                        mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
+                        mMap.animateCamera(cameraUpdate);
+                    }
+                }
+            });
+            getLatLng.execute(constructUrl(site.getLocation()));
+
+        }
+
+    }
+
+    public String convert(String vietnamese){
+        try{
+
+            String temp = Normalizer.normalize(vietnamese,Normalizer.Form.NFD);
+            Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+            System.out.println(pattern.matcher(temp).replaceAll(""));
+            return pattern.matcher(temp).replaceAll("").replace("đ","d").replace('Đ','D');
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+
+    }
+
+
 }

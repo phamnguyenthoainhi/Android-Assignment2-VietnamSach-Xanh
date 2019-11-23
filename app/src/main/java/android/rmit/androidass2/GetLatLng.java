@@ -19,7 +19,7 @@ public class GetLatLng extends AsyncTask<String, Void, String> {
     String data = "";
     HttpURLConnection connection = null;
     public interface AsyncResponse{
-        void processFinish(LatLng output);
+        void processFinish(LatLng output, String city);
 
 
     }
@@ -63,7 +63,9 @@ public class GetLatLng extends AsyncTask<String, Void, String> {
         super.onPostExecute(result);
         try {
             JSONObject jsonObject = new JSONObject(result);
-
+            JSONArray jsonArray = ((JSONArray)jsonObject.get("results"));
+            JSONObject object = jsonArray.getJSONObject(0);
+            JSONArray components = object.getJSONArray("address_components");
             double lng = ((JSONArray)jsonObject.get("results")).getJSONObject(0)
                     .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lng");
@@ -72,10 +74,48 @@ public class GetLatLng extends AsyncTask<String, Void, String> {
                     .getJSONObject("geometry").getJSONObject("location")
                     .getDouble("lat");
 
+            String city="";
+
+            for(int i = 0;i<components.length();i++){
+                JSONObject component = components.getJSONObject(i);
+                System.out.print(components);
+                if (!city.equals("")){
+                    break;
+                }
+                for(int k = 0;k<component.getJSONArray("types").length();k++){
+                    if(component.getJSONArray("types").get(k).equals("locality")){
+                        city = component.getString("long_name");
+                        break;
+                    }
+                }
+
+            }
+
+            if(city.equals("")){
+                for(int i = 0;i<components.length();i++){
+                    JSONObject component = components.getJSONObject(i);
+                    System.out.print(components);
+                    if (!city.equals("")){
+                        break;
+                    }
+                    for(int k = 0;k<component.getJSONArray("types").length();k++){
+                        if(component.getJSONArray("types").get(k).equals("administrative_area_level_1")){
+                            city = component.getString("long_name");
+                            break;
+                        }
+                    }
+
+                }
+
+            }
+
+
+
             Log.d("latitude", "" + lat);
             Log.d("longitude", "" + lng);
 
-            delegate.processFinish(new LatLng(lat,lng));
+
+            delegate.processFinish(new LatLng(lat,lng), city);
         } catch (JSONException e) {
             e.printStackTrace();
         }

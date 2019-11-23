@@ -26,47 +26,63 @@
         android:id="@+id/maplayout"
         >
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/refeshbtn"
+                style="?android:attr/borderlessButtonStyle"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/refresh"
-                android:backgroundTint="#75020000"
-                style="?android:attr/borderlessButtonStyle"
-                />
+                android:backgroundTint="#75020000" />
 
             <TextView
                 android:id="@+id/textView9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="15dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
+                android:layout_toRightOf="@id/refeshbtn"
                 android:text=" Refresh"
                 android:textSize="16sp" />
 
+            <TextView
+                android:id="@+id/filterbtn"
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_weight="1"
+                android:text="Filter"
+                android:textAlignment="textEnd"
+                android:textSize="16sp"
+                android:clickable="true"
+                />
 
-        </LinearLayout>
+
+        </RelativeLayout>
 
 
 
-<!--        <Button-->
-<!--            android:id="@+id/todetails"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Button" />-->
+        <!--        <Button-->
+        <!--            android:id="@+id/todetails"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="Button" />-->
 
-<!--        <Button-->
-<!--            android:id="@+id/create_site"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Create Site" />-->
+        <!--        <Button-->
+        <!--            android:id="@+id/create_site"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="Create Site" />-->
 
         <EditText
             android:id="@+id/searchbar"

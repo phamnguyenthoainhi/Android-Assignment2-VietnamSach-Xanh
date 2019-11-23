@@ -2,6 +2,7 @@ package android.rmit.androidass2;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,11 +27,11 @@ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -72,6 +73,8 @@ public class DetailTab extends Fragment {
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
                     sitedate.setText(convertDate(site.getDateTime()));
+
+
 
                     Calendar currentValues = Calendar.getInstance();
                     currentValues.setTimeInMillis(site.getDateTime());
@@ -158,7 +161,6 @@ public class DetailTab extends Fragment {
         siteinfo = view.findViewById(R.id.siteinfotab);
         editbtn = view.findViewById(R.id.editbuttondetail);
         savebtn = view.findViewById(R.id.savebuttondetail);
-        deletebtn = view.findViewById(R.id.deletedetail);
         sitelocation.setEnabled(false);
         sitedate.setEnabled(false);
         siteinfo.setEnabled(false);
@@ -170,12 +172,10 @@ public class DetailTab extends Fragment {
                 sitedate.setEnabled(true);
                 siteinfo.setEnabled(true);
                 savebtn.setVisibility(View.VISIBLE);
-                deletebtn.setVisibility(View.VISIBLE);
 
             }
         });
         savebtn.setVisibility(View.INVISIBLE);
-        deletebtn.setVisibility(View.INVISIBLE);
 
         savebtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +210,6 @@ public class DetailTab extends Fragment {
                 sitelocation.setEnabled(false);
                 sitedate.setEnabled(false);
                 siteinfo.setEnabled(false);
-                deletebtn.setVisibility(View.INVISIBLE);
 
             }
         });

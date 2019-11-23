@@ -189,19 +189,19 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         setContentView(R.layout.activity_sites);
 
         sites = new ArrayList<>();
-        Button exit = findViewById(R.id.exit);
-        exit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
         View siteView = getLayoutInflater().inflate(R.layout.site, null);
         RecyclerView recyclerView = findViewById(R.id.my_recycler_view);
 
         fetchCurrentUser();
 
-
+        Button button = findViewById(R.id.fromsites);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SitesActivity.this, MapsActivity.class));
+            }
+        });
 
         Button createSite = findViewById(R.id.addnewsite);
         createSite.setOnClickListener(new View.OnClickListener() {

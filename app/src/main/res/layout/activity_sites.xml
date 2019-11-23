@@ -9,10 +9,16 @@
     tools:context="android.rmit.androidass2.SitesActivity">
 
     <Button
-        android:id="@+id/exit"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
 
+        android:id="@+id/fromsites"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/back"
+        android:backgroundTint="#475667"
+        android:gravity="left" />
     <Button
 
         android:id="@+id/addnewsite"
