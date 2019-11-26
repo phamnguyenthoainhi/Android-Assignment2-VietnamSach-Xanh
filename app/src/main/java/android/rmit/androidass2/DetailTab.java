@@ -24,6 +24,8 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -156,11 +158,19 @@ public class DetailTab extends Fragment {
         final ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
         final String sid = manageSiteActivity.getid();
 
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
         sitelocation = view.findViewById(R.id.sitelocationtab);
         sitedate = view.findViewById(R.id.sitedatetab);
         siteinfo = view.findViewById(R.id.siteinfotab);
         editbtn = view.findViewById(R.id.editbuttondetail);
         savebtn = view.findViewById(R.id.savebuttondetail);
+
+        if (currentUser.getUid().equals("QnZasbpIgNMYpCQ8BIy682YwxS93")){
+            editbtn.setVisibility(View.INVISIBLE);
+        }
+
         sitelocation.setEnabled(false);
         sitedate.setEnabled(false);
         siteinfo.setEnabled(false);

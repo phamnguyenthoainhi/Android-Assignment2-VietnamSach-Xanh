@@ -8,17 +8,35 @@
     android:orientation="vertical"
     tools:context="android.rmit.androidass2.SitesActivity">
 
-    <Button
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        android:id="@+id/fromsites"
-        style="?android:attr/borderlessButtonStyle"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/back"
-        android:backgroundTint="#475667"
-        android:gravity="left" />
+        <Button
+
+            android:id="@+id/fromsites"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/back"
+            android:backgroundTint="#475667"
+            android:gravity="left" />
+
+        <Button
+            android:id="@+id/report"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/newspaper"
+            android:backgroundTint="#475667" />
+    </RelativeLayout>
+
+
     <Button
 
         android:id="@+id/addnewsite"
@@ -29,7 +47,7 @@
         android:layout_marginBottom="20dp"
         android:background="@drawable/rounded_button"
 
-        android:backgroundTint="#A30CCCD3"
+        android:backgroundTint="#5DBCD2"
         android:paddingLeft="70dp"
         android:paddingRight="70dp"
 

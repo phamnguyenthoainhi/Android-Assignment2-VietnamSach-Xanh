@@ -9,11 +9,14 @@ import android.widget.TextView;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
+import java.lang.ref.WeakReference;
+
 public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
     TextView details;
     private View window;
     private Context context;
     TextView campaignname;
+    MapsActivity mapsActivity;
 
     public CustomWindowAdapter(final Context context) {
         this.context = context;
@@ -22,13 +25,14 @@ public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
     }
     private void renderWindowButton(Marker marker, View view) {
-        String title = marker.getTitle();
+//        String title = marker.getTitle();
         details = view.findViewById(R.id.details);
         campaignname = view.findViewById(R.id.campaignname);
 
-        if (!title.equals("")) {
-            campaignname.setText(title);
-        }
+//        if (!title.equals("")) {
+//            campaignname.setText(title);
+//        }
+        campaignname.setText(mapsActivity.clickedLocation.getTitle());
 
 
     }

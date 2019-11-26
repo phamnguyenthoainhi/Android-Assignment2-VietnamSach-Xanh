@@ -19,19 +19,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".ReportActivity"></activity>
 
-        <service android:name="android.rmit.androidass2.NotificationService">
+        <service android:name=".NotificationService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-        <activity android:name="android.rmit.androidass2.ManageAccountActivity"></activity>
+
+        <activity android:name=".ManageAccountActivity" />
         <activity
-            android:name="android.rmit.androidass2.ManageSiteActivity"
+            android:name=".ManageSiteActivity"
             android:label="@string/title_activity_manage_site"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="android.rmit.androidass2.SplashScreenActivity"
+            android:name=".SplashScreenActivity"
             android:theme="@style/SplashscreenTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,17 +41,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="android.rmit.androidass2.SiteDetail" android:launchMode="singleTop">
-
+        <activity
+            android:name=".SiteDetail"
+            android:launchMode="singleTop">
             <intent-filter>
-                <action android:name="ACTIVITY_INFO"/>
+                <action android:name="ACTIVITY_INFO" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="android.rmit.androidass2.CreateSiteActivity" />
-        <activity android:name="android.rmit.androidass2.SignUpActivity" />
-        <activity android:name="android.rmit.androidass2.SignInActivity" />
-        <activity android:name="android.rmit.androidass2.SitesActivity" />
+        <activity android:name=".CreateSiteActivity" />
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".SignInActivity" />
+        <activity android:name=".SitesActivity" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -63,13 +67,13 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name="android.rmit.androidass2.MapsActivity"
+            android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
-            android:launchMode="singleInstance"
-            >
+            android:launchMode="singleInstance">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.SEARCH" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

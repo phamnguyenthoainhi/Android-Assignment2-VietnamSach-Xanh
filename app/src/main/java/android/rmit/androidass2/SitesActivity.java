@@ -40,6 +40,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
     User user;
     Button joinbtn;
     String TAG = "Site Activity";
+    private String superuser = "QnZasbpIgNMYpCQ8BIy682YwxS93";
 
     ArrayList<Site> sites;
 
@@ -105,6 +106,29 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
                                 }
                             }
                         });
+                    }
+                }
+            });
+
+        }
+
+
+    }
+
+    public void fetchSiteBySuperUser() {
+        if (currentUser != null) {
+            db.collection("Sites").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot queryDocumentSnapshot: task.getResult()) {
+                            Log.d(TAG, "onComplete: fetch" + queryDocumentSnapshot.toString());
+                            Site site = queryDocumentSnapshot.toObject(Site.class);
+                            site.setId(queryDocumentSnapshot.getId());
+                            sites.add(site);
+                            initRecyclerView();
+                        }
+
                     }
                 }
             });
@@ -184,7 +208,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             SharedPreferences shared = getSharedPreferences("id", MODE_PRIVATE);
             currentUser = (shared.getString("uid", ""));
 
-        fetchSiteByOwnerId();
+//        fetchSiteByOwnerId();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sites);
 
@@ -192,6 +216,21 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
         View siteView = getLayoutInflater().inflate(R.layout.site, null);
         RecyclerView recyclerView = findViewById(R.id.my_recycler_view);
+        Button reportbtn = findViewById(R.id.report);
+
+        if (!currentUser.equals(superuser)) {
+            reportbtn.setVisibility(View.INVISIBLE);
+            fetchSiteByOwnerId();
+        } else {
+            fetchSiteBySuperUser();
+        }
+
+        reportbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SitesActivity.this, ReportActivity.class));
+            }
+        });
 
         fetchCurrentUser();
 
@@ -217,7 +256,11 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             public void onRefresh() {
                 sites = new ArrayList<>();
                 fetchSites();
-                fetchSiteByOwnerId();
+                if (currentUser.equals(superuser)){
+                    fetchSiteBySuperUser();
+                } else {
+                    fetchSiteByOwnerId();
+                }
                 swipeRefreshLayout.setRefreshing(false);
             }
         });

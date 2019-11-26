@@ -10,6 +10,8 @@ import android.widget.Button;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 import androidx.appcompat.widget.Toolbar;
@@ -25,9 +27,12 @@ public class ManageSiteActivity extends AppCompatActivity {
     TabLayout tabLayout;
     PagerController pagerController;
     Toolbar toolbar;
+    private FirebaseAuth mAuth;
 
     private static final String TAG = "ManageSiteActivity";
     String sid = "";
+
+    FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,10 +46,9 @@ public class ManageSiteActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewpager);
         Button back = findViewById(R.id.backfrommanagesite);
 
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
         sid = getIntent().getExtras().getString("selectedsiteid");
-
-
-
 
 
         back.setOnClickListener(new View.OnClickListener() {

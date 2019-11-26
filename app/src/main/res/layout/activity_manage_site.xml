@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2.ManageSiteActivity">
+    tools:context="android.rmit.androidass2nhi.ManageSiteActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,16 +16,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/backfrommanagesite"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/back"
-            android:backgroundTint="#475667"
-            android:gravity="left" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/backfrommanagesite"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/back"
+                android:backgroundTint="#475667"
+                android:gravity="left" />
+
+        </RelativeLayout>
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
@@ -70,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/viewpager"
-           >
+            >
 
         </androidx.viewpager.widget.ViewPager>
 

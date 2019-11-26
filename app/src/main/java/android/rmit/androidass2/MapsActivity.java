@@ -1,7 +1,6 @@
 package android.rmit.androidass2;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,20 +17,18 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -50,15 +47,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.model.AddressComponents;
-import com.google.android.libraries.places.api.model.OpeningHours;
-import com.google.android.libraries.places.api.model.PhotoMetadata;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlusCode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -66,6 +59,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterManager;
 
 import org.json.JSONObject;
 
@@ -78,7 +73,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.Normalizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -87,7 +81,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleMap.OnInfoWindowClickListener, SearchItemAdapter.SearchItemViewHolder.OnSiteListener {
+        SearchItemAdapter.SearchItemViewHolder.OnSiteListener {
 
     private static final String TAG = "MapsActivity";
     private EditText searchbar;
@@ -98,7 +92,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     protected FusedLocationProviderClient client;
     int MY_PERMISSIONS_REQUEST_LOCATION;
-    protected static final int REQUEST_CHECK_SETTINGS = 0x1;
     private FirebaseAuth mAuth;
     FirebaseUser currentUser;
     RecyclerView recyclerView;
@@ -106,20 +99,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LinearLayout mapLayout;
     TextView filterbtn;
     RadioGroup filterradiogroup;
-
+    Polyline polyline;
     ArrayList<Site> sites;
     ArrayList<Site> filtersites;
     ArrayList<Site> afterfiltersites;
     List<String> selectedCities =new ArrayList<>();;
-
+    ClusterManager<SiteLocation> clusterManager;
+    SiteLocation clickedLocation;
 
     List<String> cityList = new ArrayList<>();
 
-    ArrayList<LatLng> latLngs = new ArrayList<LatLng>();
-    LatLngBounds latLngbounce;
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
-    private LatLngBounds.Builder bounds2;
-    //    FusedLocationProviderClient fusedLocationProviderClient;
+    private String superuser = "QnZasbpIgNMYpCQ8BIy682YwxS93";
     Address address;
 
     @Override
@@ -142,7 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapLayout = findViewById(R.id.maplayout);
         recyclerView.setVisibility(View.INVISIBLE);
 
-//        Button todetails = findViewById(R.id.todetails);
+
         Button refreshbtn = findViewById(R.id.refeshbtn);
 
         fetchSites();
@@ -216,10 +207,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         requestPermission();
         client = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
-        LatLng origin = new LatLng(40.722543, -73.998585);
-        LatLng destination = new LatLng(40.7057, -73.9964);
 
-//        drawRoute(origin, destination);
         createNavigationBar();
 
     }
@@ -260,6 +248,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                 createMarker(output.latitude,output.longitude,sites.get(i).getName(),sites.get(i).getId());
                 builder.include(output);
+                if(polyline!=null){
+                    polyline.remove();
+                }
                 drawRoute(myLocation, new LatLng(output.latitude, output.longitude));
 
             }
@@ -338,6 +329,63 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
     }
 
+    private void setUpClusterManager(final GoogleMap googleMap){
+        clusterManager = new ClusterManager<>(this,googleMap);
+        googleMap.setOnCameraIdleListener(clusterManager);
+        googleMap.setOnMarkerClickListener(clusterManager);
+        googleMap.setOnInfoWindowClickListener(clusterManager);
+        googleMap.setInfoWindowAdapter(clusterManager.getMarkerManager());
+
+        clusterManager.setOnClusterItemInfoWindowClickListener(new ClusterManager.OnClusterItemInfoWindowClickListener<SiteLocation>() {
+            @Override
+            public void onClusterItemInfoWindowClick(SiteLocation siteLocation) {
+                SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                if (siteLocation.getSnippet() != null) {
+                    editor.putString("sid", siteLocation.getSnippet());
+                    editor.commit();
+                    if (sharedPreferences.getString("sid", "") != null) {
+                        if (currentUser != null) {
+                            Toast.makeText(MapsActivity.this, ""+currentUser.getUid(), Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
+                            intent.putExtra("id",siteLocation.getSnippet());
+                            startActivity(intent);
+                        } else {
+                            startActivity(new Intent(MapsActivity.this, SignInActivity.class));
+                        }
+                    }
+                }
+            }
+        });
+
+        clusterManager.setOnClusterItemClickListener(new ClusterManager.OnClusterItemClickListener<SiteLocation>() {
+            @Override
+            public boolean onClusterItemClick(SiteLocation siteLocation) {
+                clickedLocation = siteLocation;
+                return false;
+            }
+        });
+
+        clusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<SiteLocation>() {
+            @Override
+            public boolean onClusterClick(Cluster<SiteLocation> cluster) {
+                //googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.getPosition(),(float)Math.floor(googleMap.getCameraPosition().zoom+1)),300,null);
+                LatLngBounds.Builder b = LatLngBounds.builder();
+                for(SiteLocation siteLocation: cluster.getItems()){
+                    b.include(siteLocation.getPosition());
+                }
+                final LatLngBounds bounds = b.build();
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,100));
+
+
+                return true;
+            }
+        });
+
+
+    }
+
+
     private Address geoLocate(Site site) {
 
         try {
@@ -359,14 +407,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return address;
     }
 
-    public Marker createMarker(double latitude, double longitude, String title, String id) {
-        Marker marker = mMap.addMarker(new MarkerOptions()
-                .position(new LatLng(latitude, longitude))
-                .anchor(0.5f, 0.5f)
-                .title(title)
-        );
-        marker.setTag(id);
-        return marker;
+    public void createMarker(double latitude, double longitude, String title, String id) {
+        SiteLocation siteLocation = new SiteLocation(title,id,latitude,longitude);
+        clusterManager.addItem(siteLocation);
+        clusterManager.cluster();
+        clusterManager.getMarkerCollection().setOnInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
+
+//        Marker marker = mMap.addMarker(new MarkerOptions()
+//                .position(new LatLng(latitude, longitude))
+//                .anchor(0.5f, 0.5f)
+//                .title(title)
+//        );
+//        marker.setTag(id);
+//        return marker;
     }
 
     @Override
@@ -375,10 +428,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(false);
 
         mMap.setPadding(0, 0, 30, 0);
-        mMap.setOnInfoWindowClickListener(this);
+        //mMap.setOnInfoWindowClickListener(this);
         getPosition(MapsActivity.this);
 
-
+        setUpClusterManager(mMap);
     }
 
     private void requestPermission() {
@@ -402,25 +455,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return "https://maps.googleapis.com/maps/api/geocode/json?address="+location.replaceAll("\\s","+")+"&key="+key;
     }
 
-    @Override
-    public void onInfoWindowClick(Marker marker) {
-        SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (marker.getTag() != null) {
-            editor.putString("sid", marker.getTag().toString());
-            editor.commit();
-            if (sharedPreferences.getString("sid", "") != null) {
-                if (currentUser != null) {
-                    Toast.makeText(this, ""+currentUser.getUid(), Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
-                    intent.putExtra("id",marker.getTag().toString());
-                    startActivity(intent);
-                } else {
-                    startActivity(new Intent(MapsActivity.this, SignInActivity.class));
-                }
-            }
-        }
-    }
+
+//    @Override
+//    public void onInfoWindowClick(Marker marker) {
+//        SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPreferences.edit();
+//        if (marker.getTag() != null) {
+//            editor.putString("sid", marker.getTag().toString());
+//            editor.commit();
+//            if (sharedPreferences.getString("sid", "") != null) {
+//                if (currentUser != null) {
+//                    Toast.makeText(this, ""+currentUser.getUid(), Toast.LENGTH_SHORT).show();
+//                    Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
+//                    intent.putExtra("id",marker.getTag().toString());
+//                    startActivity(intent);
+//                } else {
+//                    startActivity(new Intent(MapsActivity.this, SignInActivity.class));
+//                }
+//            }
+//        }
+//    }
 
 
     private static class RetrieveDirection extends AsyncTask<String, Void, String> {
@@ -505,7 +559,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 MapsActivity activity = weakReference.get();
                 activity.mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
-                activity.mMap.addPolyline(polylineOptions);
+                activity.polyline =  activity.mMap.addPolyline(polylineOptions);
 
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -523,17 +577,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                 @Override
                 public void processFinish(LatLng output, String city) {
-                    //Toast.makeText(MapsActivity.this, "Name: " + convert(city), Toast.LENGTH_SHORT).show();
+                    cityList.add(city);
 
-                    cityList.add(city);
-                    //Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                     createMarker(output.latitude,output.longitude,site.getName(),site.getId());
+
                     builder.include(output);
-                    LatLngBounds bounds = builder.build();
-                    mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
-                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
-                    mMap.animateCamera(cameraUpdate);
-                    cityList.add(city);
+                    if(sites.indexOf(site)==sites.size()-1) {
+
+                        LatLngBounds bounds = builder.build();
+                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
+                        mMap.animateCamera(cameraUpdate);
+                    }
+
 
                 }
             });
@@ -552,7 +607,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("My SiteLocation"));
 
 
                 builder.include(myLocation);
@@ -638,10 +693,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-
-
-        //Toast.makeText(MapsActivity.this, converted.toString(), Toast.LENGTH_SHORT).show();
-
         alertDialog.setCanceledOnTouchOutside(true);
 
         filterradiogroup = dialog.findViewById(R.id.filterRadioGroup);
@@ -663,9 +714,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
                 }
-                addMarkersByFilter();
-                alertDialog.dismiss();
 
+                alertDialog.dismiss();
+                addMarkersByFilter();
             }
         });
 
@@ -720,27 +771,90 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void addMarkersByFilter() {
         mMap.clear();
-        Toast.makeText(this, selectedCities.toString(), Toast.LENGTH_SHORT).show();
-        for (final Site site: sites) {
+        clusterManager.clearItems();
 
-            GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
-                @Override
-                public void processFinish(LatLng output, String city) {
-                    String current = convert(city).toLowerCase().replaceAll("\\s","");
-                    if(selectedCities.contains(current) || afterfiltersites.contains(site)) {
-                        //Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, selectedCities.toString(), Toast.LENGTH_SHORT).show();
+        if (selectedCities.size() == 0 && afterfiltersites.size() > 0) {
+
+            for (final Site site : afterfiltersites) {
+                GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
+                    @Override
+                    public void processFinish(LatLng output, String city) {
                         createMarker(output.latitude, output.longitude, site.getName(), site.getId());
                         builder.include(output);
-                        LatLngBounds bounds = builder.build();
-                        mMap.setInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
-                        mMap.animateCamera(cameraUpdate);
+                        if(afterfiltersites.indexOf(site)==afterfiltersites.size()-1) {
+
+                            LatLngBounds bounds = builder.build();
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
+                            mMap.animateCamera(cameraUpdate);
+                        }
+
                     }
-                }
-            });
-            getLatLng.execute(constructUrl(site.getLocation()));
+                });
+                getLatLng.execute(constructUrl(site.getLocation()));
+
+            }
+        }
+
+        else if (afterfiltersites.size() == 0 &&  selectedCities.size() > 0 ) {
+
+            for (final Site site : sites) {
+                GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
+                    @Override
+                    public void processFinish(LatLng output, String city) {
+                        String current = convert(city).toLowerCase().replaceAll("\\s", "");
+                        if (selectedCities.contains(current) ) {
+
+                            createMarker(output.latitude, output.longitude, site.getName(), site.getId());
+                            builder.include(output);
+
+                        }
+                        if(sites.indexOf(site)==sites.size()-1) {
+
+                            LatLngBounds bounds = builder.build();
+                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
+                            mMap.animateCamera(cameraUpdate);
+                        }
+                    }
+                });
+                getLatLng.execute(constructUrl(site.getLocation()));
+
+            }
 
         }
+
+        else if (selectedCities.size() > 0  &&  afterfiltersites.size() > 0) {
+
+            for (final Site site : sites) {
+                GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
+                    @Override
+                    public void processFinish(LatLng output, String city) {
+                        String current = convert(city).toLowerCase().replaceAll("\\s", "");
+                        for (Site after:afterfiltersites) {
+                            if (selectedCities.contains(current) && after.getId().equalsIgnoreCase(site.getId())) {
+                                createMarker(output.latitude, output.longitude, site.getName(), site.getId());
+                                builder.include(output);
+
+
+                            }
+                            if(afterfiltersites.indexOf(after)==afterfiltersites.size()-1) {
+
+                                LatLngBounds bounds = builder.build();
+                                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
+                                mMap.animateCamera(cameraUpdate);
+                            }
+                        }
+                    }
+                });
+                getLatLng.execute(constructUrl(site.getLocation()));
+
+            }
+        }
+
+        else if(selectedCities.size()==0 && afterfiltersites.size()==0){
+            addMarkers();
+        }
+
 
     }
 
@@ -756,6 +870,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
         return null;
+
+    }
+
+    public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
+        TextView details;
+        private View window;
+        private Context context;
+        TextView campaignname;
+        MapsActivity mapsActivity;
+
+        public CustomWindowAdapter(final Context context) {
+            this.context = context;
+            window = LayoutInflater.from(context).inflate(R.layout.custom_info_window, null);
+
+
+        }
+        private void renderWindowButton(Marker marker, View view) {
+            details = view.findViewById(R.id.details);
+            campaignname = view.findViewById(R.id.campaignname);
+
+            campaignname.setText(clickedLocation.getTitle());
+
+
+        }
+
+
+        @Override
+        public View getInfoWindow(Marker marker) {
+            renderWindowButton(marker, window);
+            return window;
+        }
+
+        @Override
+        public View getInfoContents(Marker marker) {
+            renderWindowButton(marker, window);
+
+            return window;
+        }
 
     }
 

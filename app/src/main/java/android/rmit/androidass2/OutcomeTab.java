@@ -15,12 +15,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
+
+import java.util.ArrayList;
 
 public class OutcomeTab extends Fragment {
 
@@ -28,14 +34,10 @@ public class OutcomeTab extends Fragment {
     private String TAG = "Outcome Tab";
     private EditText garbage;
     Button edit;
-     EditText volunteers;
+    EditText volunteers;
+    ArrayList<String> numOfVolunteers;
 
     void fetchDataReport(String id){
-        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setTimestampsInSnapshotsEnabled(true)
-                .build();
-        firestore.setFirestoreSettings(settings);
 
         db.collection("Reports").document(id).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -53,6 +55,24 @@ public class OutcomeTab extends Fragment {
                         Log.w(TAG,e);
                     }
                 });
+    }
+
+    public void fetchVolunteers(String sid) {
+        db.collection("SitesVolunteers").document(sid).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        DocumentSnapshot documentSnapshot = task.getResult();
+
+                        numOfVolunteers = (ArrayList<String>) documentSnapshot.get("volunteers");
+
+                        Log.d(TAG, "onComplete: "+ numOfVolunteers.size());
+
+                        volunteers.setText(String.valueOf(numOfVolunteers.size()));
+
+                    }
+                });
+
     }
 
     void updateReport(String id, String newData){
@@ -86,6 +106,12 @@ public class OutcomeTab extends Fragment {
         final Button edit = view.findViewById(R.id.editbuttonoutcome);
         final Button save = view.findViewById(R.id.savebuttonoutcome);
 
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if (currentUser.getUid().equals("QnZasbpIgNMYpCQ8BIy682YwxS93")){
+            edit.setVisibility(View.INVISIBLE);
+        }
 
         save.setVisibility(View.INVISIBLE);
 
@@ -96,7 +122,7 @@ public class OutcomeTab extends Fragment {
                 save.setVisibility(View.VISIBLE);
                 edit.setVisibility(View.INVISIBLE);
                 garbage.setEnabled(true);
-                volunteers.setEnabled(true);
+
 
             }
         });
@@ -105,7 +131,7 @@ public class OutcomeTab extends Fragment {
         final String sid = manageSiteActivity.getid();
 
         fetchDataReport(sid);
-
+        fetchVolunteers(sid);
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,7 +158,7 @@ public class OutcomeTab extends Fragment {
 
                 edit.setVisibility(View.VISIBLE);
                 garbage.setEnabled(false);
-                volunteers.setEnabled(false);
+
             }
         });
 

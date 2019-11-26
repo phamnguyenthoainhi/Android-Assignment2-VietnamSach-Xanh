@@ -3,16 +3,21 @@ package android.rmit.androidass2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.rmit.androidass2.R;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -22,6 +27,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
 
 public class ManageAccountActivity extends AppCompatActivity {
     TextView logoutbtn;
@@ -38,6 +47,9 @@ public class ManageAccountActivity extends AppCompatActivity {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     User user;
+    ArrayList<String> sidlist = new ArrayList<>();
+    ArrayList<Site> sites = new ArrayList<>();
+
 
     private static final String TAG = "ManageAccountActivity";
 
@@ -51,11 +63,6 @@ public class ManageAccountActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     user = task.getResult().toObject(User.class);
-//                    user.setFirstname(task.getResult().get("firstname").toString());
-//                    user.setLastname(task.getResult().get("lastname").toString());
-//                    user.setPhone(task.getResult().get("phone").toString());
-//                    user.setGender(task.getResult().get("gender").toString());
-//                    user.setEmail(task.getResult().get("email").toString());
 
                     welcome.setText("Welcome, "+ user.getFirstname() + " " + user.getLastname());
                     accountfirstname.setText(user.getFirstname());
@@ -66,6 +73,48 @@ public class ManageAccountActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    public void fetchSitesByUser() {
+        db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "onComplete: fetchsite "+ task.getResult());
+                    sidlist = (ArrayList<String>) task.getResult().get("sites");
+                    if (sidlist != null ){
+                        for (final String sid: sidlist) {
+                            db.collection("Sites").document(sid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    Log.d(TAG, "onComplete: fetchsites2 "+ task.getResult().get("location"));
+                                    Site site = new Site();
+                                    site.setLocation(task.getResult().get("location").toString());
+                                    site.setName(task.getResult().get("name").toString());
+                                    site.setDateTime((Long) task.getResult().get("dateTime"));
+                                    sites.add(site);
+
+                                    RecyclerView recyclerView = findViewById(R.id.historyrecyclerview);
+                                    recyclerView.setHasFixedSize(true);
+
+                                    LinearLayoutManager layoutManager = new LinearLayoutManager(ManageAccountActivity.this);
+                                    recyclerView.setLayoutManager(layoutManager);
+
+                                    HistorySiteAdapter adapter = new HistorySiteAdapter(sites);
+                                    recyclerView.setAdapter(adapter);
+
+                                }
+                            });
+                        }
+                    } else {
+
+                    }
+
+                }
+            }
+        });
+    }
+
 
     private void updateUser(){
         db.collection("Users").document(currentUser).set(user)
@@ -128,6 +177,7 @@ public class ManageAccountActivity extends AppCompatActivity {
                 accountphone.requestFocus();
             }
         });
+        fetchSitesByUser();
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,6 +227,9 @@ public class ManageAccountActivity extends AppCompatActivity {
 
 
 
+
+
+        Log.d(TAG, "onCreate: fetchsites "+ sites);
 
     }
 
