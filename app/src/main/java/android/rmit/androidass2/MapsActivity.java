@@ -558,7 +558,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
                 MapsActivity activity = weakReference.get();
-                activity.mMap.moveCamera(CameraUpdateFactory.newLatLng(result.get(0).get(0)));
+                LatLngBounds.Builder b = LatLngBounds.builder();
+                b.include(result.get(0).get(0));
+                b.include(result.get(result.size()-1).get((result.get(result.size()-1)).size()-1));
+                final LatLngBounds bounds = b.build();
+                activity.mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds,100));
                 activity.polyline =  activity.mMap.addPolyline(polylineOptions);
 
             } catch (NullPointerException e) {
