@@ -1,5 +1,8 @@
 package android.rmit.androidass2;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.rmit.androidass2.ManageSiteActivity;
 import android.rmit.androidass2.R;
@@ -10,17 +13,25 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.content.Context;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -98,7 +109,37 @@ public class NumberOfVolunteerTab extends Fragment {
     }
 
 
+    public void requestData(final String siteId, String userId){
+        db.collection("Users").document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        HashMap<String, String> request = new HashMap<>();
+                        request.put("siteId",siteId);
+                        request.put("email",(String)documentSnapshot.get("email"));
 
+                        db.collection("Requests").add(request)
+                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                    @Override
+                                    public void onSuccess(DocumentReference documentReference) {
+                                        Toast.makeText(context, "Your request has been sent. Please check your email for incoming mail containing the requested data.", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(context, "Fail to create request. Please try again.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG,"Failed to fetch user.",e);
+                    }
+                });
+    }
 
 
 
@@ -111,7 +152,10 @@ public class NumberOfVolunteerTab extends Fragment {
 
 
         ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
-        String sid = manageSiteActivity.getid();
+
+        SharedPreferences sharedPreferences = manageSiteActivity.getSharedPreferences("id",Context.MODE_PRIVATE);
+        final String userId = sharedPreferences.getString("uid",null);
+        final String sid = manageSiteActivity.getid();
         context = getContext();
         recyclerView = view.findViewById(R.id.vltrecyclerview);
 
@@ -120,11 +164,29 @@ public class NumberOfVolunteerTab extends Fragment {
         fetchVolunteersId(sid);
 
 
+        Button download = view.findViewById(R.id.downloadbutton);
 
-
-
-
-
+        download.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext())
+                        .setTitle("Confirmation")
+                        .setMessage("Do you want to request for this site's data?")
+                        .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                requestData(sid,userId);
+                            }
+                        })
+                        .setPositiveButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                builder.create().show();
+            }
+        });
 
         return view;
     }

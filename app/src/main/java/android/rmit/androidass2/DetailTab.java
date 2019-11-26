@@ -73,7 +73,7 @@ public class DetailTab extends Fragment {
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
                     sitedate.setText(convertDate(site.getDateTime()));
-
+                    dateTime = site.getDateTime();
 
 
                     Calendar currentValues = Calendar.getInstance();
