@@ -263,6 +263,7 @@ public class ManageAccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent (ManageAccountActivity.this, MapsActivity.class));
+                finish();
             }
         });
         Log.d(TAG, "onCreate: fetchsites "+ sites);

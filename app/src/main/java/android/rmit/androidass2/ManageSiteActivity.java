@@ -54,6 +54,7 @@ public class ManageSiteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(ManageSiteActivity.this, SitesActivity.class));
+                finish();
             }
         });
         pagerController = new PagerController(getSupportFragmentManager(), tabLayout.getTabCount());

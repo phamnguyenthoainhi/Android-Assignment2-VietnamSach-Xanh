@@ -299,7 +299,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         Intent intent = new Intent(SitesActivity.this, ManageSiteActivity.class);
         intent.putExtra("selectedsiteid",sites.get(position).getId());
         startActivity(intent);
-
+        finish();
     }
 
     @Override
@@ -330,8 +330,6 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
                         deleteSite("Sites",site.getId());
                         deleteSite("Reports",site.getId());
-
-
                         sites.remove(site);
                         adapter.notifyDataSetChanged();
 

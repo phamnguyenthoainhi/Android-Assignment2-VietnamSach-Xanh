@@ -90,6 +90,7 @@ public class ReportActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(ReportActivity.this, SitesActivity.class));
+                finish();
             }
         });
         fetchReport();
