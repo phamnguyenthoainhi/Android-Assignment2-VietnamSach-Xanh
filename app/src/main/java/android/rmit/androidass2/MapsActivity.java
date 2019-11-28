@@ -198,7 +198,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, "onTextChanged: "+ s);
                 adapter.filter(s, sites);
                 adapter.notifyDataSetChanged();
             }
@@ -273,7 +272,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             clusterIconGenerator.setContentView(marker);
             ImageView imageView = new ImageView(MapsActivity.this);
-            imageView.setImageResource(R.drawable.marker);
+            imageView.setImageResource(R.drawable.markerplastic);
             dimention = (int) getResources().getDimension(R.dimen.my_value);
             imageView.setPadding(2, 2, 2, 2);
             imageView.setLayoutParams(new ViewGroup.LayoutParams(dimention, dimention));
@@ -356,10 +355,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         getLatLng.execute(constructUrl(sites.get(i).getLocation()));
+        recyclerView.setVisibility(View.INVISIBLE);
+        hideKeyBoard(recyclerView);
 
     }
-
-
 
 
     public void createNavigationBar() {

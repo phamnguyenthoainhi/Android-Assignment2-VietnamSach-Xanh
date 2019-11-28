@@ -57,7 +57,7 @@ public class NumberOfVolunteerTab extends Fragment {
     public ArrayList<String> fetchVolunteersId(String id) {
         Log.d(TAG, "fetchVolunteersId: called");
 
-        db.collection("Sites").document(id).get()
+        db.collection("SitesVolunteers").document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {

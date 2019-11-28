@@ -70,7 +70,7 @@ public class OutcomeTab extends Fragment {
 
     public void fetchVolunteers(String sid) {
  db = FirebaseFirestore.getInstance();
-        db.collection("Sites").document(sid).get()
+        db.collection("SitesVolunteers").document(sid).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -134,7 +134,7 @@ public class OutcomeTab extends Fragment {
                 save.setVisibility(View.VISIBLE);
                 edit.setVisibility(View.INVISIBLE);
                 garbage.setEnabled(true);
-                volunteers.setEnabled(true);
+
 
             }
         });
@@ -172,7 +172,7 @@ public class OutcomeTab extends Fragment {
 
                 edit.setVisibility(View.VISIBLE);
                 garbage.setEnabled(false);
-                volunteers.setEnabled(false);
+
             }
         });
 
