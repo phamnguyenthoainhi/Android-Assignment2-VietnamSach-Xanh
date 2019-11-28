@@ -2,7 +2,6 @@ package android.rmit.androidass2;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.Address;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,12 +27,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
+import java.sql.Date;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,7 +50,7 @@ public class DetailTab extends Fragment {
     private Site site;
     private Button savebtn;
     private Button editbtn;
-    private Button deletebtn;
+
     private List<Place.Field> fields;
     private int AUTOCOMPLETE_REQUEST_CODE = 1;
     private DatePicker datePicker;
@@ -75,8 +75,6 @@ public class DetailTab extends Fragment {
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
                     sitedate.setText(convertDate(site.getDateTime()));
-                    dateTime = site.getDateTime();
-
 
                     Calendar currentValues = Calendar.getInstance();
                     currentValues.setTimeInMillis(site.getDateTime());
@@ -100,7 +98,7 @@ public class DetailTab extends Fragment {
         int mMonth = calendar.get(Calendar.MONTH) + 1;
         int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        int mHour = calendar.get(Calendar.HOUR);
+        int mHour = calendar.get(Calendar.HOUR_OF_DAY);
         int mMinute = calendar.get(Calendar.MINUTE);
 
         String s = "";
@@ -122,6 +120,12 @@ public class DetailTab extends Fragment {
     }
 
     private void updateSite(){
+
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        firestore.setFirestoreSettings(settings);
 
         db.collection("Sites").document(site.getId())
                 .set(site)
@@ -160,7 +164,6 @@ public class DetailTab extends Fragment {
 
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
-
         sitelocation = view.findViewById(R.id.sitelocationtab);
         sitedate = view.findViewById(R.id.sitedatetab);
         siteinfo = view.findViewById(R.id.siteinfotab);
@@ -170,6 +173,9 @@ public class DetailTab extends Fragment {
         if (currentUser.getUid().equals("QnZasbpIgNMYpCQ8BIy682YwxS93")){
             editbtn.setVisibility(View.INVISIBLE);
         }
+
+
+
 
         sitelocation.setEnabled(false);
         sitedate.setEnabled(false);
@@ -183,9 +189,11 @@ public class DetailTab extends Fragment {
                 siteinfo.setEnabled(true);
                 savebtn.setVisibility(View.VISIBLE);
 
+
             }
         });
         savebtn.setVisibility(View.INVISIBLE);
+
 
         savebtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -302,3 +310,4 @@ public class DetailTab extends Fragment {
         }else if(resultCode == RESULT_CANCELED){}
     }
 }
+

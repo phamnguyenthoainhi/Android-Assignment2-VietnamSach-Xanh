@@ -4,11 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.rmit.androidass2.ManageSiteActivity;
-import android.rmit.androidass2.R;
-import android.rmit.androidass2.Site;
-import android.rmit.androidass2.User;
-import android.rmit.androidass2.VolunteerAdapter;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,6 +55,7 @@ public class NumberOfVolunteerTab extends Fragment {
 
 
     public ArrayList<String> fetchVolunteersId(String id) {
+        Log.d(TAG, "fetchVolunteersId: called");
 
         db.collection("Sites").document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -77,7 +74,7 @@ public class NumberOfVolunteerTab extends Fragment {
     }
 
     public void fetchvolunteerinfo() {
-
+        Log.d(TAG, "fetchvolunteerinfo: called");
         if (!volunteersid.isEmpty()) {
             Log.d(TAG, "fetchvolunteerinfo: not empty");
             for (String id: volunteersid) {
@@ -90,10 +87,9 @@ public class NumberOfVolunteerTab extends Fragment {
                         volunteer.setFirstname(task.getResult().get("firstname").toString());
                         volunteer.setLastname(task.getResult().get("lastname").toString());
                         volunteer.setPhone(task.getResult().get("phone").toString());
-
-
                         volunteers.add(volunteer);
                         Log.d(TAG, "onComplete: fetch volunteers" + volunteers.toString());
+                        
                         recyclerView.setHasFixedSize(true);
                         LinearLayoutManager layoutManager = new LinearLayoutManager(context);
                         recyclerView.setLayoutManager(layoutManager);
@@ -157,9 +153,10 @@ public class NumberOfVolunteerTab extends Fragment {
         final String userId = sharedPreferences.getString("uid",null);
         final String sid = manageSiteActivity.getid();
         context = getContext();
+
         recyclerView = view.findViewById(R.id.vltrecyclerview);
 
-        Log.d(TAG, "onCreateView: id "+ sid);
+
 
         fetchVolunteersId(sid);
 

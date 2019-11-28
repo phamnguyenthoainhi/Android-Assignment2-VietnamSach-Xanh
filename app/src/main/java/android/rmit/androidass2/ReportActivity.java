@@ -3,8 +3,11 @@ package android.rmit.androidass2;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,24 +26,25 @@ public class ReportActivity extends AppCompatActivity {
     ArrayList<Double> listOfGarbage;
     Long sum = 0L;
     private static final String TAG = "ReportActivity";
+    Button fromreport;
 
 
 
     public void fetchReport() {
-        db.collection("Reports").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot queryDocumentSnapshot: task.getResult()) {
+            db.collection("Reports").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot queryDocumentSnapshot: task.getResult()) {
 
-                        Long num = (Long) queryDocumentSnapshot.get("amountOfGarbage");
-                        sum += num;
+                            Long num = (Long) queryDocumentSnapshot.get("amountOfGarbage");
+                            sum += num;
+                        }
+
+                        totalGarbage.setText(sum.toString());
                     }
-
-                    totalGarbage.setText(sum.toString());
                 }
-            }
-        });
+            });
 
     }
     public void fetchVolunteers() {
@@ -81,6 +85,13 @@ public class ReportActivity extends AppCompatActivity {
         setContentView(R.layout.activity_report);
         totalGarbage = findViewById(R.id.totalgarbage);
         totalVolunteers = findViewById(R.id.totalVolunteers);
+        fromreport = findViewById(R.id.fromreport);
+        fromreport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ReportActivity.this, SitesActivity.class));
+            }
+        });
         fetchReport();
         fetchVolunteers();
     }

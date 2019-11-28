@@ -1,7 +1,10 @@
 <resources>
-    <string name="app_name">AndroidAss2</string>
+    <string name="app_name">VNSachVaXanh</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_manage_site">ManageSiteActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="facebook_app_id">555274878590434</string>
+    <string name="fb_login_protocol_scheme">fb555274878590434</string>
+
 </resources>

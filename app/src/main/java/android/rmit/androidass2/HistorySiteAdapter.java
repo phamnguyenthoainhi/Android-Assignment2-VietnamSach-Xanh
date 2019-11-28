@@ -62,7 +62,7 @@ public class HistorySiteAdapter extends RecyclerView.Adapter<HistorySiteAdapter.
 
 
 
-        return mDay+"/"+mMonth+""+mYear;
+        return mDay+"/"+mMonth+"/"+mYear;
     }
 
 

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2.SignInActivity"
+    tools:context="android.rmit.androidass2nhi.SignInActivity"
     android:onClick="hideKeyBoard"
     >
+
     <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/color_bg"
-        >
+        android:layout_height="192dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/registerbg">
 
 
     </ImageView>
@@ -43,16 +43,50 @@
         android:hint="Email"
         android:inputType="textPersonName" />
 
-    <EditText
-        android:id="@+id/passwordsignin"
-        android:layout_width="match_parent"
+    <RelativeLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginBottom="20dp"
-        android:ems="10"
-        android:hint="Password"
-        android:inputType="textPersonName" />
+        android:layout_marginBottom="30dp">
+
+        <EditText
+            android:id="@+id/passwordsignin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Password"
+            android:inputType="textPassword"/>
+
+        <Button
+            android:id="@+id/showpasswordsignin"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/view"
+            android:backgroundTint="#48030303" />
+        <Button
+            android:id="@+id/hidepasswordsignin"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/hide"
+            android:backgroundTint="#48030303" />
+
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/signin"
@@ -60,9 +94,8 @@
         android:layout_height="wrap_content"
 
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="20dp"
         android:background="@drawable/rounded_button"
-        android:backgroundTint="#A30CCCD3"
+        android:backgroundTint="#5DBCD2"
         android:paddingLeft="85dp"
 
         android:paddingRight="85dp"
@@ -73,6 +106,15 @@
 
 
         />
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="30dp"
+        android:backgroundTint="#1765AA" />
 
     <LinearLayout
         android:layout_width="wrap_content"

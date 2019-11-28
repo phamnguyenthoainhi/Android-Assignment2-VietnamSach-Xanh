@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#081B0202"
+    android:background="#0F4FAEC7"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2.SitesActivity">
+    tools:context="android.rmit.androidass2nhi.SitesActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -59,9 +59,10 @@
     </Button>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipetorefresh"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/swipetorefresh">
+        android:layout_height="wrap_content">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/my_recycler_view"
             android:layout_width="match_parent"

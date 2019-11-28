@@ -61,7 +61,7 @@
                 android:layout_marginBottom="10dp"
                 android:layout_weight="1"
                 android:background="@drawable/rounded_border_button"
-                android:backgroundTint="#C3FFFFFF"
+                android:backgroundTint="#C6FFFFFF"
                 android:clickable="true"
                 android:paddingLeft="15dp"
                 android:paddingTop="5dp"

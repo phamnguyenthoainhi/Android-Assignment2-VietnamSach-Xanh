@@ -5,8 +5,16 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.rmit.androidass2.R;
+import android.util.Log;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -32,5 +40,30 @@ public class NotificationService extends FirebaseMessagingService {
 
         manager.notify(123,notification);
 
+    }
+
+    @Override
+    public void onNewToken(String s) {
+        super.onNewToken(s);
+
+        System.out.println("NEW TOKEN: "+s);
+        SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
+        String userId = sharedPreferences.getString("uid",null);
+
+        final FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Tokens").document(userId).set(new UserToken(s))
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Token","Successfully updated token.");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Token", "Failed to update token");
+                    }
+                });
     }
 }

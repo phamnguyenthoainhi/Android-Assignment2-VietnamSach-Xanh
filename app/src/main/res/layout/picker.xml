@@ -14,7 +14,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="4"
         android:calendarViewShown="true"
-        android:headerBackground="#A30CCCD3"
+        android:headerBackground="#5DBCD2"
         android:spinnersShown="false" />
 
     <TimePicker
@@ -22,7 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="4"
-        android:headerBackground="#A30CCCD3" />
+        android:headerBackground="#5DBCD2" />
 
     <Button
         android:id="@+id/date_time_set"
@@ -36,7 +36,7 @@
         android:layout_marginBottom="15dp"
         android:layout_weight="1"
         android:background="@drawable/rounded_button"
-        android:backgroundTint="#A30CCCD3"
+        android:backgroundTint="#5DBCD2"
 
         android:paddingLeft="85dp"
 

@@ -30,14 +30,23 @@ import java.util.ArrayList;
 
 public class OutcomeTab extends Fragment {
 
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    FirebaseFirestore db;
     private String TAG = "Outcome Tab";
     private EditText garbage;
     Button edit;
-    EditText volunteers;
-    ArrayList<String> numOfVolunteers;
+     EditText volunteers;
+     ArrayList<String> numOfVolunteers;
+
+    FirebaseFirestore firestore;
+
 
     void fetchDataReport(String id){
+        db = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setTimestampsInSnapshotsEnabled(true)
+                .build();
+        db.setFirestoreSettings(settings);
+
 
         db.collection("Reports").document(id).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -57,8 +66,11 @@ public class OutcomeTab extends Fragment {
                 });
     }
 
+
+
     public void fetchVolunteers(String sid) {
-        db.collection("SitesVolunteers").document(sid).get()
+ db = FirebaseFirestore.getInstance();
+        db.collection("Sites").document(sid).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -106,13 +118,13 @@ public class OutcomeTab extends Fragment {
         final Button edit = view.findViewById(R.id.editbuttonoutcome);
         final Button save = view.findViewById(R.id.savebuttonoutcome);
 
+
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
 
         if (currentUser.getUid().equals("QnZasbpIgNMYpCQ8BIy682YwxS93")){
             edit.setVisibility(View.INVISIBLE);
         }
-
         save.setVisibility(View.INVISIBLE);
 
         edit.setOnClickListener(new View.OnClickListener() {
@@ -122,16 +134,18 @@ public class OutcomeTab extends Fragment {
                 save.setVisibility(View.VISIBLE);
                 edit.setVisibility(View.INVISIBLE);
                 garbage.setEnabled(true);
-
+                volunteers.setEnabled(true);
 
             }
         });
+
 
         ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
         final String sid = manageSiteActivity.getid();
 
         fetchDataReport(sid);
         fetchVolunteers(sid);
+
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,7 +172,7 @@ public class OutcomeTab extends Fragment {
 
                 edit.setVisibility(View.VISIBLE);
                 garbage.setEnabled(false);
-
+                volunteers.setEnabled(false);
             }
         });
 

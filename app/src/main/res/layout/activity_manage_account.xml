@@ -1,57 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#0F4FAEC7"
+    android:layout_height="match_parent">
 
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#FFFFFF"
+
         android:fillViewport="true"
         android:orientation="vertical"
         tools:context="android.rmit.androidass2.ManageAccountActivity">
 
-        <Button
-
-            android:id="@+id/fromaccount"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/back"
-            android:backgroundTint="#475667"
-            android:gravity="left" />
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="222dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/accountbg">
+            android:layout_height="220dp"
+            android:alpha="1"
+            android:orientation="vertical">
+
+            <Button
+
+                android:id="@+id/fromaccount"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/back"
+                android:backgroundTint="#0C0000"
+                android:gravity="left" />
 
             <TextView
                 android:id="@+id/welcomeaccount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:textColor="#0B0001"
+                android:layout_gravity="center_horizontal|center_vertical"
+                android:layout_marginTop="30dp"
+                android:textColor="#0D0001"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-        </RelativeLayout>
+
+        </LinearLayout>
+
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
 
             app:cardCornerRadius="20dp"
             app:contentPadding="20dp">
@@ -76,7 +78,7 @@
                         android:layout_marginEnd="0dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/edit"
-                        android:backgroundTint="#811B1B1B" />
+                        android:backgroundTint="#4FAEC7" />
 
                     <Button
                         android:id="@+id/saveaccount"
@@ -89,7 +91,7 @@
                         android:layout_marginEnd="0dp"
                         android:layout_marginBottom="10dp"
                         android:background="@drawable/success"
-                        android:backgroundTint="#811B1B1B"
+                        android:backgroundTint="#4FAEC7"
                         android:textSize="12sp" />
                 </RelativeLayout>
 
@@ -143,7 +145,7 @@
                         <EditText
 
                             android:id="@+id/accountfirstname"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@null"
                             android:inputType="textPersonName"
@@ -154,7 +156,7 @@
                         <EditText
 
                             android:id="@+id/accountlastname"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@null"
                             android:inputType="textPersonName"
@@ -165,7 +167,7 @@
                         <EditText
 
                             android:id="@+id/accountemail"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@null"
                             android:inputType="textPersonName|textEmailSubject"
@@ -175,7 +177,7 @@
                         <EditText
 
                             android:id="@+id/accountphone"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@null"
                             android:inputType="textPersonName"
@@ -193,9 +195,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
 
+            android:layout_marginBottom="20dp"
             app:cardCornerRadius="20dp"
             app:contentPadding="20dp">
 
@@ -247,3 +250,5 @@
     </LinearLayout>
 
 </ScrollView>
+
+

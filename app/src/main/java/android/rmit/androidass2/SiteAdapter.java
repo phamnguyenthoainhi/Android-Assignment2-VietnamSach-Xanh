@@ -48,11 +48,11 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
         return mySiteList.size();
     }
 
-    public static class SiteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    public static class SiteViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // each data item is just a string in this case
         TextView sitelocation;
         TextView sitename;
-        Button deletesite;
+
         OnSiteListener onSiteListener;
         SiteViewHolder(View v, OnSiteListener onSiteListener) {
             super(v);
@@ -60,28 +60,28 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
             sitename = v.findViewById(R.id.sitename);
 
 
+
             this.onSiteListener = onSiteListener;
             v.setOnClickListener(this);
-            v.setOnLongClickListener(this);
 
+
+            
  
         }
 
         @Override
         public void onClick(View v) {
+
             onSiteListener.onSiteClick(getAdapterPosition());
             
         }
 
-        @Override
-        public boolean onLongClick(View v){
-            onSiteListener.deleteSite(getAdapterPosition());
-            return false;
-        }
 
         public interface OnSiteListener{
             void onSiteClick(int position);
             void deleteSite(int position);
+
+
         }
 
 

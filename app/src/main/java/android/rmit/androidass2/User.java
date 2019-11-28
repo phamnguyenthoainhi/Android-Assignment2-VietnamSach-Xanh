@@ -4,18 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class User {
-    private String firstname, lastname,phone,gender,email,tokenId;
+    private String firstname, lastname,phone,gender,email;
     private List<String> sites;
-
-
-    public User(String firstname, String lastname, String phone, String gender, String email, String tokenId) {
-        this.firstname = firstname;
-        this.lastname = lastname;
-        this.phone = phone;
-        this.gender = gender;
-        this.email = email;
-        this.tokenId = tokenId;
-    }
 
     public User() {
     }
@@ -35,14 +25,6 @@ public class User {
         this.gender = gender;
     }
 
-
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
 
     public String getEmail() {
         return email;

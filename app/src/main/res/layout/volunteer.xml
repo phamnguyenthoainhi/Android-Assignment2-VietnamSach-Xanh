@@ -22,7 +22,7 @@
         android:background="#FFFFFF"
         android:backgroundTint="#FFFFFF"
 
-        >
+>
 
         <LinearLayout
             android:id="@+id/detailinfo"
@@ -58,3 +58,7 @@
 
 
 </LinearLayout>
+
+
+
+

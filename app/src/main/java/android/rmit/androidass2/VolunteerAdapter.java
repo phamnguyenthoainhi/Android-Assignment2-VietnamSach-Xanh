@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class VolunteerAdapter extends RecyclerView.Adapter<VolunteerAdapter.VolunteerViewHolder> {
     private static final String TAG = "VolunteerAdapter";
-    private ArrayList<User> volunteerList = new ArrayList<>();
+    private ArrayList<User> volunteerList;
     private Context context;
 
     public VolunteerAdapter(ArrayList<User> volunteerList, Context context) {
@@ -33,7 +33,6 @@ public class VolunteerAdapter extends RecyclerView.Adapter<VolunteerAdapter.Volu
         VolunteerViewHolder volunteerViewHolder = new VolunteerViewHolder(view);
         return volunteerViewHolder;
 
-        
     }
 
     @Override

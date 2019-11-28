@@ -15,6 +15,6 @@
         android:id="@+id/historysitedate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="3"
+        android:layout_weight="2"
         android:text="TextView" />
 </LinearLayout>

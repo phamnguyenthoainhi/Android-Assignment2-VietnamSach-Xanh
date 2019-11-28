@@ -7,7 +7,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.rmit.androidass2.R;
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -49,7 +53,31 @@ public class SignUpActivity extends AppCompatActivity {
         emailSignup = findViewById(R.id.emailsignup);
         passwordSignup = findViewById(R.id.passwordsignup);
         mAuth = FirebaseAuth.getInstance();
-        String token;
+        final Button showpassword = findViewById(R.id.showpasswordsignup);
+        final Button hidepassword = findViewById(R.id.hidepasswordsignup);
+
+        hidepassword.setVisibility(View.INVISIBLE);
+
+        showpassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passwordSignup.setInputType(InputType.TYPE_CLASS_TEXT);
+                showpassword.setVisibility(View.INVISIBLE);
+                hidepassword.setVisibility(View.VISIBLE);
+
+            }
+        });
+
+        hidepassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passwordSignup.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                showpassword.setVisibility(View.VISIBLE);
+                hidepassword.setVisibility(View.INVISIBLE);
+
+            }
+        });
+
 
         genderButtonGroup = findViewById(R.id.genderbuttongroup);
 
@@ -87,22 +115,36 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     private void writeNewUser(final String userId, final String firstname,final String lastname,final String phone,final String gender, final String email) {
-
+        User user = new User(firstname, lastname, phone, gender, email);
         FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
             @Override
             public void onSuccess(InstanceIdResult instanceIdResult) {
                 token = instanceIdResult.getToken();
-                User user = new User(firstname, lastname, phone, gender, email, token);
-                db.collection("Users").document(userId).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(SignUpActivity.this, "Success" + userId, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(SignUpActivity.this, "Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+
+                db.collection("Tokens").document(userId).set(new UserToken(token))
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG,"Failed to update token ID");
+                            }
+                        })
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG,"Updated token ID");
+                            }
+                        });
+
+            }
+        });
+        db.collection("Users").document(userId).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(SignUpActivity.this, "Success" + userId, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(SignUpActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -141,8 +183,9 @@ public class SignUpActivity extends AppCompatActivity {
             phone.setError("This field can not be blank");
             return false;
         }
-        if (emailSignup.getText().toString().trim().equalsIgnoreCase("")){
-            emailSignup.setError("This field can not be blank");
+
+        if (TextUtils.isEmpty(emailSignup.getText()) && !Patterns.EMAIL_ADDRESS.matcher(emailSignup.getText()).matches()) {
+            emailSignup.setError("Invalid Email");
             return false;
         }
         if(passwordSignup.getText().toString().trim().equalsIgnoreCase("") || passwordSignup.getText().length() < 5){
@@ -172,11 +215,10 @@ public class SignUpActivity extends AppCompatActivity {
 
                                 writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(), signedUpUser.getEmail());
                                 startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
-                                finish();
                             } else {
                                 // If sign in fails, display a message to the user.
                                 emailSignup.setText("");
-                                emailSignup.setError("Email has already signed Up");
+                                emailSignup.setError("Invalid Email");
                                 Toast.makeText(SignUpActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
                             }

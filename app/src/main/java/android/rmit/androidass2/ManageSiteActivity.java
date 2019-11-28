@@ -45,7 +45,6 @@ public class ManageSiteActivity extends AppCompatActivity {
         outcome = findViewById(R.id.outcometab);
         viewPager = findViewById(R.id.viewpager);
         Button back = findViewById(R.id.backfrommanagesite);
-
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         sid = getIntent().getExtras().getString("selectedsiteid");

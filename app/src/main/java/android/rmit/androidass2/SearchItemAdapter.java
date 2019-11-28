@@ -93,18 +93,6 @@ public class SearchItemAdapter extends RecyclerView.Adapter<SearchItemAdapter.Se
             void onSiteClick(int position);
         }
 
-
-
-
     }
-
-
-
-
-
-
-
-
-
 
 }

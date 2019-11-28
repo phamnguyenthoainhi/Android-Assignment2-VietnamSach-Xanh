@@ -12,12 +12,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Adapter;
-import android.widget.ArrayAdapter;
+
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -55,20 +53,61 @@ public class ManageAccountActivity extends AppCompatActivity {
 
     public void fetchCurrentUser() {
 
-        Log.d(TAG, "fetchCurrentUser: "+currentUser);
-        System.out.println("hello");
+        Log.d(TAG, "fetchCurrentUser: "+ currentUser);
+
 
         db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    user = task.getResult().toObject(User.class);
+                    user = new User();
 
-                    welcome.setText("Welcome, "+ user.getFirstname() + " " + user.getLastname());
-                    accountfirstname.setText(user.getFirstname());
-                    accountlastname.setText(user.getLastname());
-                    accountphone.setText(user.getPhone());
-                    accountemail.setText(user.getEmail());
+                    if (task.getResult().get("lastname") == null) {
+                        user.setLastname("");
+                    } else {
+                        user.setLastname(task.getResult().get("lastname").toString());
+                        accountlastname.setText(user.getLastname());
+
+                        welcome.setText("Welcome, "+ user.getFirstname() + " " + user.getLastname());
+
+
+                    }
+                    if (task.getResult().get("phone") == null) {
+                        user.setPhone("");
+
+                    } else {
+                        user.setPhone(task.getResult().get("phone").toString());
+                        accountphone.setText(user.getPhone());
+
+
+                    }
+                    if (task.getResult().get("gender") == null) {
+                        user.setGender("Other");
+
+                    } else {
+                        user.setGender(task.getResult().get("gender").toString());
+
+                    }
+
+                    if (task.getResult().get("firstname") == null){
+                        user.setFirstname("");
+                    } else {
+
+                        user.setFirstname(task.getResult().get("firstname").toString());
+                        accountfirstname.setText(user.getFirstname());
+
+                        welcome.setText("Welcome, "+ user.getFirstname() + " " + user.getLastname());
+
+                    }
+                    if (task.getResult().get("email") == null) {
+                        user.setEmail("");
+                    } else {
+                        user.setEmail(task.getResult().get("email").toString());
+                        accountemail.setText(user.getEmail());
+
+                    }
+
+
                 }
             }
         });
@@ -106,9 +145,8 @@ public class ManageAccountActivity extends AppCompatActivity {
                                 }
                             });
                         }
-                    } else {
-
                     }
+
 
                 }
             }
@@ -162,6 +200,7 @@ public class ManageAccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mAuth.signOut();
+                FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(ManageAccountActivity.this, MapsActivity.class));
                 finish();
             }
@@ -174,7 +213,8 @@ public class ManageAccountActivity extends AppCompatActivity {
                 accountfirstname.setEnabled(true);
                 accountlastname.setEnabled(true);
                 accountphone.setEnabled(true);
-                accountphone.requestFocus();
+                accountemail.setEnabled(true);
+                accountfirstname.requestFocus();
             }
         });
         fetchSitesByUser();
@@ -192,6 +232,7 @@ public class ManageAccountActivity extends AppCompatActivity {
                                 user.setFirstname(accountfirstname.getText().toString());
                                 user.setLastname(accountlastname.getText().toString());
                                 user.setPhone(accountphone.getText().toString());
+                                user.setEmail(accountemail.getText().toString());
                                 welcome.setText("Welcome, "+ accountfirstname.getText().toString() + " " + accountlastname.getText().toString());
 
                                 updateUser();
@@ -224,11 +265,6 @@ public class ManageAccountActivity extends AppCompatActivity {
                 startActivity(new Intent (ManageAccountActivity.this, MapsActivity.class));
             }
         });
-
-
-
-
-
         Log.d(TAG, "onCreate: fetchsites "+ sites);
 
     }

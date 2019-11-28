@@ -2,21 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#081B0202"
-    android:orientation="vertical"
-    >
+    android:background="#0F4FAEC7"
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/downloadbutton"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="right"
-        android:layout_marginTop="20dp"
 
+        android:layout_marginTop="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
         android:background="@drawable/download"
-        android:backgroundTint="#00ACC1" />
+        android:backgroundTint="#5DBCD2" />
 
     <ScrollView
         android:layout_width="match_parent"

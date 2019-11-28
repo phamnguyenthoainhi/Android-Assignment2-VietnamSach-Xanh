@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#081B0202"
+    android:background="#0F4FAEC7"
     android:orientation="vertical"
     android:paddingLeft="20dp"
     android:paddingTop="40dp"
@@ -29,9 +29,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="25dp"
-
                 android:layout_marginRight="25dp"
-
                 android:orientation="vertical">
 
 
@@ -43,7 +41,7 @@
 
                     android:layout_marginBottom="30dp"
                     android:background="@drawable/edit"
-                    android:backgroundTint="#00ACC1" />
+                    android:backgroundTint="#5DBCD2" />
 
                 <TextView
                     android:id="@+id/textView6"
@@ -90,11 +88,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginBottom="30dp"
                     android:layout_weight="1"
                     android:background="@drawable/rounded_button"
-                    android:backgroundTint="#A30CCCD3"
+                    android:backgroundTint="#5DBCD2"
                     android:paddingLeft="85dp"
                     android:paddingRight="85dp"
                     android:text="Save"

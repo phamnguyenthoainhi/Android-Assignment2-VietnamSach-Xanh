@@ -13,6 +13,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -43,6 +44,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -50,15 +52,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.api.LogDescriptor;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 import com.google.maps.android.clustering.Cluster;
 import com.google.maps.android.clustering.ClusterManager;
 
@@ -106,10 +112,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     List<String> selectedCities =new ArrayList<>();;
     ClusterManager<SiteLocation> clusterManager;
     SiteLocation clickedLocation;
-
     List<String> cityList = new ArrayList<>();
 
+
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+
     private String superuser = "QnZasbpIgNMYpCQ8BIy682YwxS93";
     Address address;
 
@@ -125,14 +133,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         sites = new ArrayList<>();
         searchbar = findViewById(R.id.searchbar);
-        searchlist = findViewById(R.id.resultsearchlist);
+
         searchbar.setClickable(true);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+
+
+        Log.d(TAG, "onCreate: map"+ currentUser);
+
         recyclerView = findViewById(R.id.resultsearchlist);
         mapLayout = findViewById(R.id.maplayout);
         recyclerView.setVisibility(View.INVISIBLE);
-
 
         Button refreshbtn = findViewById(R.id.refeshbtn);
 
@@ -198,7 +209,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-
+        refreshTokenId();
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -207,6 +218,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         requestPermission();
         client = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
+
 
         createNavigationBar();
 
@@ -223,6 +235,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void refreshTokenId(){
+        SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
+        final String userId = sharedPreferences.getString("uid",null);
+        if(userId!=null) {
+            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                @Override
+                public void onSuccess(InstanceIdResult instanceIdResult) {
+                    String token = instanceIdResult.getToken();
+
+                    db.collection("Tokens").document(userId).set(new UserToken(token))
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Failed to update token ID");
+                                }
+                            })
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "Updated token ID");
+                                }
+                            });
+
+                }
+            });
+        }
+    }
 
     public void initRecyclerView() {
 
@@ -248,9 +287,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(MapsActivity.this, "Latitude: " + output.latitude + "Longitude: "+output.longitude, Toast.LENGTH_SHORT).show();
                 createMarker(output.latitude,output.longitude,sites.get(i).getName(),sites.get(i).getId());
                 builder.include(output);
-                if(polyline!=null){
-                    polyline.remove();
-                }
                 drawRoute(myLocation, new LatLng(output.latitude, output.longitude));
 
             }
@@ -258,13 +294,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         getLatLng.execute(constructUrl(sites.get(i).getLocation()));
 
-
     }
 
 
 
 
     public void createNavigationBar() {
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomnavigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -277,7 +313,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         break;
                     case R.id.site_menu:
                         System.out.println(Log.d(TAG, "onNavigationItemSelected: currentuser" + (currentUser == null)));
-                        if (currentUser == null) {
+                        if (currentUser == null || currentUser.equals("")) {
                             startActivity(new Intent(MapsActivity.this, SignInActivity.class));
 
                         } else {
@@ -285,7 +321,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                         break;
                     case R.id.account_menu:
-                        if (currentUser == null) {
+                        if (currentUser == null|| currentUser.equals("")) {
                             startActivity(new Intent(MapsActivity.this, SignInActivity.class));
                         } else {
                             startActivity(new Intent(MapsActivity.this, ManageAccountActivity.class));
@@ -328,7 +364,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
     }
-
     private void setUpClusterManager(final GoogleMap googleMap){
         clusterManager = new ClusterManager<>(this,googleMap);
         googleMap.setOnCameraIdleListener(clusterManager);
@@ -385,7 +420,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
     private Address geoLocate(Site site) {
 
         try {
@@ -428,10 +462,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(false);
 
         mMap.setPadding(0, 0, 30, 0);
-        //mMap.setOnInfoWindowClickListener(this);
+//        mMap.setOnInfoWindowClickListener(this);
         getPosition(MapsActivity.this);
-
         setUpClusterManager(mMap);
+
+
     }
 
     private void requestPermission() {
@@ -454,7 +489,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String key = getString(R.string.google_maps_key);
         return "https://maps.googleapis.com/maps/api/geocode/json?address="+location.replaceAll("\\s","+")+"&key="+key;
     }
-
 
 //    @Override
 //    public void onInfoWindowClick(Marker marker) {
@@ -611,7 +645,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
 
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("My SiteLocation"));
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
 
 
                 builder.include(myLocation);
@@ -655,12 +689,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         filtersites = new ArrayList<>();
         afterfiltersites = new ArrayList<>();
 
-
         final AlertDialog.Builder alert = new AlertDialog.Builder(MapsActivity.this);
         final View dialog = getLayoutInflater().inflate(R.layout.filter_layout, null);
 
         alert.setView(dialog);
         final AlertDialog alertDialog = alert.create();
+        
         final List<View> checkBox = new ArrayList<>();
         List<String> converted = new ArrayList<>();
         List<String> compare = new ArrayList<>();
@@ -696,8 +730,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ll.addView(cb);
         }
 
-
         alertDialog.setCanceledOnTouchOutside(true);
+        
 
         filterradiogroup = dialog.findViewById(R.id.filterRadioGroup);
         Button apply = dialog.findViewById(R.id.apply);
@@ -712,7 +746,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             selectedCities.add(((CheckBox) view).getText().toString().toLowerCase().replaceAll("\\s", ""));
                         }
                     }
-                    else{
+                    else {
                         if(selectedCities.contains(((CheckBox)view).getText().toString().toLowerCase().replaceAll("\\s",""))){
                             selectedCities.remove(((CheckBox)view).getText().toString().toLowerCase().replaceAll("\\s",""));
                         }
@@ -721,9 +755,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 alertDialog.dismiss();
                 addMarkersByFilter();
-            }
-        });
+                
 
+            }
+
+        });
 
         filterradiogroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -732,44 +768,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 boolean isChecked = checkedbutton.isChecked();
 
 
+
                 if (isChecked && checkedbutton.getText().equals("6AM - 12AM")) {
 
-                    Log.d(TAG, "onCheckedChanged: 6am");
+
                     for (int i = 0; i < filtersites.size(); i++) {
                         if (convertDate(filtersites.get(i).getDateTime()) <= 12 && convertDate(filtersites.get(i).getDateTime()) >= 6) {
                             afterfiltersites.add(filtersites.get(i));
+                            Log.d(TAG, "onCheckedChanged: 6"+ afterfiltersites);
                         }
                     }
                 }
                 if (isChecked && checkedbutton.getText().equals("1PM - 6PM")) {
 
-                    Log.d(TAG, "onCheckedChanged: 1pm");
+
                     for (int i = 0; i < filtersites.size(); i++) {
                         if (convertDate(filtersites.get(i).getDateTime()) >= 13 && convertDate(filtersites.get(i).getDateTime()) <= 18) {
                             afterfiltersites.add(filtersites.get(i));
-                            Log.d(TAG, "onCheckedChanged: All sites in 1AM " + convertDate(filtersites.get(i).getDateTime()));
+                            Log.d(TAG, "onCheckedChanged: 1"+ afterfiltersites);
+
                         }
                     }
                 }
-
-
             }
         });
-
         alert.show();
 
     }
-
     public int convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
 
         calendar.setTimeInMillis(millsec);
 
-
         int mHour = calendar.get(Calendar.HOUR_OF_DAY);
-//        int mMinute = calendar.get(Calendar.MINUTE);
-
-
         return mHour;
     }
 
@@ -864,7 +895,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public String convert(String vietnamese){
         try{
-
             String temp = Normalizer.normalize(vietnamese,Normalizer.Form.NFD);
             Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
             System.out.println(pattern.matcher(temp).replaceAll(""));
@@ -876,6 +906,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return null;
 
     }
+
 
     public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
         TextView details;

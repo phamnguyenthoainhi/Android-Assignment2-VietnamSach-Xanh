@@ -16,8 +16,8 @@
         android:layout_centerHorizontal="true"
         android:text="hello"
         android:textAlignment="center"
-        android:textColor="#000002"
-        android:textSize="18sp" />
+        android:textColor="#B7000002"
+        android:textSize="15sp" />
 
     <TextView
         android:id="@+id/details"

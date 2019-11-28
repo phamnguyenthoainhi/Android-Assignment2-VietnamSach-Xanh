@@ -38,7 +38,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
     private RecyclerView.LayoutManager layoutManager;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     User user;
-    Button joinbtn;
+
     String TAG = "Site Activity";
     private String superuser = "QnZasbpIgNMYpCQ8BIy682YwxS93";
 
@@ -49,20 +49,42 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
     public void fetchCurrentUser() {
         Log.d(TAG, "fetchCurrentUser: "+currentUser);
-        System.out.println("hello");
 
-            db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        user = new User();
-                        user.setFirstname(task.getResult().get("firstname").toString());
+        db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    user = new User();
+                    if (task.getResult().get("lastname") == null) {
+                        user.setLastname("");
+                    } else {
                         user.setLastname(task.getResult().get("lastname").toString());
-                        user.setPhone(task.getResult().get("phone").toString());
-                        user.setGender(task.getResult().get("gender").toString());
+
                     }
+                    if (task.getResult().get("phone") == null) {
+                        user.setPhone("");
+
+                    } else {
+                        user.setPhone(task.getResult().get("phone").toString());
+
+                    }
+                    if (task.getResult().get("gender") == null) {
+                        user.setGender("Other");
+
+                    } else {
+                        user.setGender(task.getResult().get("gender").toString());
+
+                    }
+                    if (task.getResult().get("firstname") == null){
+                        user.setFirstname("");
+                    } else {
+                        user.setFirstname(task.getResult().get("firstname").toString());
+
+                    }
+
                 }
-            });
+            }
+        });
 
 
 
@@ -114,7 +136,6 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
 
     }
-
     public void fetchSiteBySuperUser() {
         if (currentUser != null) {
             db.collection("Sites").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -137,6 +158,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
 
     }
+
 
     public void initRecyclerView() {
         recyclerView = findViewById(R.id.my_recycler_view);
@@ -205,14 +227,16 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-            SharedPreferences shared = getSharedPreferences("id", MODE_PRIVATE);
-            currentUser = (shared.getString("uid", ""));
+        SharedPreferences shared = getSharedPreferences("id", MODE_PRIVATE);
+        currentUser = (shared.getString("uid", ""));
 
-//        fetchSiteByOwnerId();
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sites);
 
         sites = new ArrayList<>();
+
 
         View siteView = getLayoutInflater().inflate(R.layout.site, null);
         RecyclerView recyclerView = findViewById(R.id.my_recycler_view);
@@ -222,7 +246,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             reportbtn.setVisibility(View.INVISIBLE);
             fetchSiteByOwnerId();
         } else {
-            fetchSiteBySuperUser();
+           fetchSiteBySuperUser();
         }
 
         reportbtn.setOnClickListener(new View.OnClickListener() {
@@ -233,6 +257,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         });
 
         fetchCurrentUser();
+
 
         Button button = findViewById(R.id.fromsites);
         button.setOnClickListener(new View.OnClickListener() {
