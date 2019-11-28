@@ -22,23 +22,44 @@ public class NotificationService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        final Intent intent = new Intent(this,SiteDetail.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intent.putExtra("id",remoteMessage.getData().get("id"));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+        if (remoteMessage.getData().get("type").equals("invitation")){
+            final Intent intent = new Intent(this, SiteDetail.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("id", remoteMessage.getData().get("id"));
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
 
-        Notification notification = new Notification.Builder(this)
+            Notification notification = new Notification.Builder(this)
                 .setContentTitle(remoteMessage.getNotification().getTitle())
                 .setContentText(remoteMessage.getNotification().getBody())
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .build();
 
-        NotificationManager manager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notification.flags = Notification.FLAG_AUTO_CANCEL;
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
 
-        manager.notify(123,notification);
+            manager.notify(123, notification);
+        }
+        else{
+            final Intent intent = new Intent(this, ManageSiteActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra("selectedsiteid", remoteMessage.getData().get("id"));
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle(remoteMessage.getNotification().getTitle())
+                    .setContentText(remoteMessage.getNotification().getBody())
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(pendingIntent)
+                    .build();
+
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notification.flags = Notification.FLAG_AUTO_CANCEL;
+
+            manager.notify(123, notification);
+        }
 
     }
 

@@ -57,7 +57,7 @@ public class NumberOfVolunteerTab extends Fragment {
     public ArrayList<String> fetchVolunteersId(String id) {
         Log.d(TAG, "fetchVolunteersId: called");
 
-        db.collection("Sites").document(id).get()
+        db.collection("SitesVolunteers").document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -83,10 +83,18 @@ public class NumberOfVolunteerTab extends Fragment {
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         volunteer = new User();
                         volunteers = new ArrayList<>();
-                        volunteer.setEmail(task.getResult().get("email").toString());
-                        volunteer.setFirstname(task.getResult().get("firstname").toString());
-                        volunteer.setLastname(task.getResult().get("lastname").toString());
-                        volunteer.setPhone(task.getResult().get("phone").toString());
+                        if(task.getResult().get("email")!=null) {
+                            volunteer.setEmail(task.getResult().get("email").toString());
+                        }
+                        if(task.getResult().get("firstname")!=null) {
+                            volunteer.setFirstname(task.getResult().get("firstname").toString());
+                        }
+                        if(task.getResult().get("lastname")!=null) {
+                            volunteer.setLastname(task.getResult().get("lastname").toString());
+                        }
+                        if(task.getResult().get("phone")!=null) {
+                            volunteer.setPhone(task.getResult().get("phone").toString());
+                        }
                         volunteers.add(volunteer);
                         Log.d(TAG, "onComplete: fetch volunteers" + volunteers.toString());
                         
