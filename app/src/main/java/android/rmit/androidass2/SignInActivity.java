@@ -86,7 +86,7 @@ public class SignInActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
 
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            final FirebaseUser user = mAuth.getCurrentUser();
                             User newuser = new User();
                             newuser.setEmail(user.getEmail());
                             newuser.setFirstname(user.getDisplayName());
@@ -96,6 +96,27 @@ public class SignInActivity extends AppCompatActivity {
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("uid", user.getUid());
                                 editor.commit();
+                                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                                    @Override
+                                    public void onSuccess(InstanceIdResult instanceIdResult) {
+                                        String token = instanceIdResult.getToken();
+
+                                        db.collection("Tokens").document(user.getUid()).set(new UserToken(token))
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG,"Failed to update token ID");
+                                                    }
+                                                })
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d(TAG,"Updated token ID");
+                                                    }
+                                                });
+
+                                    }
+                                });
                                 startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
 
                             }
