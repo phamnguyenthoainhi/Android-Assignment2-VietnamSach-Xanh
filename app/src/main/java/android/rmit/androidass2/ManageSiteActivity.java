@@ -47,8 +47,8 @@ public class ManageSiteActivity extends AppCompatActivity {
         Button back = findViewById(R.id.backfrommanagesite);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        sid = getIntent().getExtras().getString("selectedsiteid");
-
+        //sid = getIntent().getExtras().getString("selectedsiteid");
+        onNewIntent(getIntent());
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,5 +83,15 @@ public class ManageSiteActivity extends AppCompatActivity {
         return sid;
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        processIntent(intent);
+    }
 
+    private void processIntent(Intent intent){
+
+        final Bundle bundle = intent.getExtras();
+        sid = (String)bundle.get("selectedsiteid");
+    }
 }
