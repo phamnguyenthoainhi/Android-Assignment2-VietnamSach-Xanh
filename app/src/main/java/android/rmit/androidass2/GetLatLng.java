@@ -17,14 +17,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class GetLatLng extends AsyncTask<String, Void, String> {
-    String data = "";
-    HttpURLConnection connection = null;
+    private String data = "";
+    private HttpURLConnection connection = null;
     public interface AsyncResponse{
         void processFinish(LatLng output, String city);
 
 
     }
-    public AsyncResponse delegate = null;
+    private AsyncResponse delegate = null;
     public GetLatLng (AsyncResponse delegate){
         this.delegate=delegate;
     }

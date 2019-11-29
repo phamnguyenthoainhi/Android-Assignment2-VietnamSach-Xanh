@@ -211,7 +211,7 @@ public class CreateSiteActivity extends AppCompatActivity {
         calendar.setTimeInMillis(millsec);
 
         int mYear = calendar.get(Calendar.YEAR);
-        int mMonth = calendar.get(Calendar.MONTH);
+        int mMonth = calendar.get(Calendar.MONTH) + 1;
         int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         int mHour = calendar.get(Calendar.HOUR);

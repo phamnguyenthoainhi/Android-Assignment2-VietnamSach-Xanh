@@ -76,9 +76,12 @@ public class DetailTab extends Fragment {
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
                     sitedate.setText(convertDate(site.getDateTime()));
+                    dateTime=site.getDateTime();
 
                     Calendar currentValues = Calendar.getInstance();
                     currentValues.setTimeInMillis(site.getDateTime());
+
+
 
                     datePicker.updateDate(currentValues.get(Calendar.YEAR),currentValues.get(Calendar.MONTH),currentValues.get(Calendar.DAY_OF_MONTH));
                     timePicker.setCurrentHour(currentValues.get(Calendar.HOUR));
