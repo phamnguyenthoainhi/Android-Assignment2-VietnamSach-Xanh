@@ -84,15 +84,12 @@ public class CreateSiteActivity extends AppCompatActivity {
         final View dateTime = findViewById(R.id.time);
         datePicker = dialogView.findViewById(R.id.date_picker);
         timePicker = dialogView.findViewById(R.id.time_picker);
-        datePicker.setMinDate(System.currentTimeMillis());
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
-                System.out.println(i+"");
-                System.out.println(i1+"");
+        datePicker.setMinDate(1587229200000L);
+        datePicker.setMaxDate(1587747600000L);
 
-            }
-        });
+        datePicker.updateDate(2020,3,22);
+        timePicker.setCurrentHour(9);
+        timePicker.setCurrentMinute(0);
 
         dateTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,24 +98,24 @@ public class CreateSiteActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
 
-//                        datePicker = dialogView.findViewById(R.id.date_picker);
-//                        timePicker = dialogView.findViewById(R.id.time_picker);
+                        if (timePicker.getCurrentHour() >= 6 && timePicker.getCurrentHour() < 21) {
+
+                            Calendar calendar = new GregorianCalendar(datePicker.getYear(),
+                                    datePicker.getMonth(),
+                                    datePicker.getDayOfMonth(),
+                                    timePicker.getCurrentHour(),
+                                    timePicker.getCurrentMinute());
+
+                            time = calendar.getTimeInMillis();
+
+                            ((EditText) dateTime).setText(convertDate(time));
 
 
-
-                        Calendar calendar = new GregorianCalendar(datePicker.getYear(),
-                                datePicker.getMonth(),
-                                datePicker.getDayOfMonth(),
-                                timePicker.getCurrentHour(),
-                                timePicker.getCurrentMinute());
-
-                        time = calendar.getTimeInMillis();
-
-//                        ((EditText)dateTime).setText(time+"");
-
-                        ((EditText)dateTime).setText(convertDate(time));
-
-                        alertDialog.dismiss();
+                            alertDialog.dismiss();
+                        }
+                        else{
+                            Toast.makeText(CreateSiteActivity.this, "Please pick a valid time between 6 AM and 9 PM", Toast.LENGTH_SHORT).show();
+                        }
                     }});
                 alertDialog.setView(dialogView);
                 alertDialog.show();

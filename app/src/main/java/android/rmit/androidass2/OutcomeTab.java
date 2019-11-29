@@ -70,7 +70,7 @@ public class OutcomeTab extends Fragment {
 
     public void fetchVolunteers(String sid) {
  db = FirebaseFirestore.getInstance();
-        db.collection("Sites").document(sid).get()
+        db.collection("SitesVolunteers").document(sid).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {

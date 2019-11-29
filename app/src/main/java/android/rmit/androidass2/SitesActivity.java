@@ -272,7 +272,6 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(SitesActivity.this,CreateSiteActivity.class));
-                finish();
             }
         });
         final SwipeRefreshLayout swipeRefreshLayout = findViewById(R.id.swipetorefresh);
@@ -299,6 +298,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         Intent intent = new Intent(SitesActivity.this, ManageSiteActivity.class);
         intent.putExtra("selectedsiteid",sites.get(position).getId());
         startActivity(intent);
+        finish();
 
     }
 
