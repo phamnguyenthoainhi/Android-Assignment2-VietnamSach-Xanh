@@ -121,9 +121,12 @@ public class SignInActivity extends AppCompatActivity {
 
                             } else {
                                 startActivity(new Intent(SignInActivity.this, VerifyEmail.class));
+<<<<<<< HEAD
+=======
                             }
+>>>>>>> boi
 
-
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());

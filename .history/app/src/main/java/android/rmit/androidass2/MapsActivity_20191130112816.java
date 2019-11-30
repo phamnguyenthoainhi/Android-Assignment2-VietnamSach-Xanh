@@ -259,9 +259,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         protected boolean shouldRenderAsCluster(Cluster<SiteLocation> cluster) {
-
+<<<<<<< HEAD
+            return cluster.getSize() > 1;
+=======
             return cluster.getSize() > 5;
-
+>>>>>>> boi
         }
 
         public CustomClusterManagerRenderer() {

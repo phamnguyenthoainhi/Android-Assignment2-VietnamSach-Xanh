@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     android:background="#0F4FAEC7"
     android:orientation="vertical"
-    tools:context="android.rmit.androidass2.CreateSiteActivity"
-    >
+
+    tools:context="android.rmit.androidass2.CreateSiteActivity">
+
 
 
     <androidx.cardview.widget.CardView

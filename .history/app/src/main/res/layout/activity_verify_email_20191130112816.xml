@@ -7,7 +7,27 @@
     android:orientation="vertical"
     tools:context=".VerifyEmail">
 
+<<<<<<< HEAD
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Have you verify your email?"
+        tools:layout_editor_absoluteX="163dp"
+        tools:layout_editor_absoluteY="129dp" />
 
+    <Button
+        android:id="@+id/verifybtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Verify" />
+
+    <Button
+        android:id="@+id/skipbtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Skip" />
+=======
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="200dp"
@@ -60,4 +80,5 @@
             android:textColor="#FFFFFF" />
     </LinearLayout>
 
+>>>>>>> boi
 </LinearLayout>

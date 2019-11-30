@@ -35,7 +35,7 @@ public class NotificationService extends FirebaseMessagingService {
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent)
                 .build();
-
+>>>>>>> boi
 
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notification.flags = Notification.FLAG_AUTO_CANCEL;

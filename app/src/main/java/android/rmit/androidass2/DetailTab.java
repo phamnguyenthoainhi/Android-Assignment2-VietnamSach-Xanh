@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -75,9 +76,12 @@ public class DetailTab extends Fragment {
                     sitelocation.setText(site.getLocation());
                     siteinfo.setText(site.getName());
                     sitedate.setText(convertDate(site.getDateTime()));
+                    dateTime=site.getDateTime();
 
                     Calendar currentValues = Calendar.getInstance();
                     currentValues.setTimeInMillis(site.getDateTime());
+
+
 
                     datePicker.updateDate(currentValues.get(Calendar.YEAR),currentValues.get(Calendar.MONTH),currentValues.get(Calendar.DAY_OF_MONTH));
                     timePicker.setCurrentHour(currentValues.get(Calendar.HOUR));
@@ -259,7 +263,8 @@ public class DetailTab extends Fragment {
         datePicker = dialogView.findViewById(R.id.date_picker);
         timePicker = dialogView.findViewById(R.id.time_picker);
 
-
+        datePicker.setMinDate(1587229200000L);
+        datePicker.setMaxDate(1587747600000L);
 
         sitedate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -267,25 +272,24 @@ public class DetailTab extends Fragment {
                 dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (timePicker.getCurrentHour() >= 6 && timePicker.getCurrentHour() < 21) {
+                            Calendar calendar = new GregorianCalendar(datePicker.getYear(),
+                                    datePicker.getMonth(),
+                                    datePicker.getDayOfMonth(),
+                                    timePicker.getCurrentHour(),
+                                    timePicker.getCurrentMinute());
 
-//
-//                        datePicker = dialogView.findViewById(R.id.date_picker);
-//                        timePicker = dialogView.findViewById(R.id.time_picker);
+                            long time = calendar.getTimeInMillis();
 
-                        Calendar calendar = new GregorianCalendar(datePicker.getYear(),
-                                datePicker.getMonth(),
-                                datePicker.getDayOfMonth(),
-                                timePicker.getCurrentHour(),
-                                timePicker.getCurrentMinute());
+                            dateTime = time;
 
-                        long time = calendar.getTimeInMillis();
+                            sitedate.setText(convertDate(time));
 
-//                        site.setDateTime(time);
-                        dateTime = time;
-
-                        sitedate.setText(convertDate(time));
-
-                        alertDialog.dismiss();
+                            alertDialog.dismiss();
+                        }
+                        else{
+                            Toast.makeText(view.getContext(), "Please pick a valid time between 6 AM and 9 PM", Toast.LENGTH_SHORT).show();
+                        }
                     }});
                 alertDialog.setView(dialogView);
                 alertDialog.show();

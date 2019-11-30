@@ -84,12 +84,24 @@ public class CreateSiteActivity extends AppCompatActivity {
         final View dateTime = findViewById(R.id.time);
         datePicker = dialogView.findViewById(R.id.date_picker);
         timePicker = dialogView.findViewById(R.id.time_picker);
+<<<<<<< HEAD
+        datePicker.setMinDate(System.currentTimeMillis());
+        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker timePicker, int i, int i1) {
+                System.out.println(i+"");
+                System.out.println(i1+"");
+
+            }
+        });
+=======
         datePicker.setMinDate(1587229200000L);
         datePicker.setMaxDate(1587747600000L);
 
         datePicker.updateDate(2020,3,22);
         timePicker.setCurrentHour(9);
         timePicker.setCurrentMinute(0);
+>>>>>>> boi
 
         dateTime.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,7 +110,14 @@ public class CreateSiteActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
 
+<<<<<<< HEAD
+//                        datePicker = dialogView.findViewById(R.id.date_picker);
+//                        timePicker = dialogView.findViewById(R.id.time_picker);
+
+
+=======
                         if (timePicker.getCurrentHour() >= 6 && timePicker.getCurrentHour() < 21) {
+>>>>>>> boi
 
                             Calendar calendar = new GregorianCalendar(datePicker.getYear(),
                                     datePicker.getMonth(),

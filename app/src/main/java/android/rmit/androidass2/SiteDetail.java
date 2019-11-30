@@ -119,7 +119,7 @@ public class SiteDetail extends AppCompatActivity {
         calendar.setTimeInMillis(millsec);
 
         int mYear = calendar.get(Calendar.YEAR);
-        int mMonth = calendar.get(Calendar.MONTH);
+        int mMonth = calendar.get(Calendar.MONTH)+1;
         int mDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         int mHour = calendar.get(Calendar.HOUR);
@@ -162,95 +162,97 @@ public class SiteDetail extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
         userId = sharedPreferences.getString("uid",null);
         join = findViewById(R.id.joinbutton);
+//
+//        join.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+        if (site.getOwner()!=null && site.getOwner().equals(userId)){
+            join.setVisibility(View.GONE);
+        }
+        else {
+            join.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SiteDetail.this)
+                            .setTitle("Confirmation")
+                            .setMessage("Do you want to join this clean up site? \n" + site.getLocation())
+                            .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Toast.makeText(SiteDetail.this, "Success", Toast.LENGTH_SHORT).show();
 
-        join.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if((site.getOwner())!=null && !((site.getOwner()).equals(userId))){
-                    join.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(SiteDetail.this)
-                                    .setTitle("Confirmation")
-                                    .setMessage("Do you want to join this clean up site? \n" + site.getLocation())
-                                    .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Toast.makeText(SiteDetail.this, "Success", Toast.LENGTH_SHORT).show();
-
-                                            List<String> volunteers = site.getVolunteers();
-                                            volunteers.add(userId);
-                                            site.setVolunteers(volunteers);
+                                    List<String> volunteers = site.getVolunteers();
+                                    volunteers.add(userId);
+                                    site.setVolunteers(volunteers);
 
 
-                                            DocumentReference siteRef = db.collection("SitesVolunteers").document(site.getId());
-                                            siteRef.update("volunteers",volunteers)
-                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            Log.d(TAG,"Successfully updated!");
-                                                            join.setVisibility(View.GONE);
+                                    DocumentReference siteRef = db.collection("SitesVolunteers").document(site.getId());
+                                    siteRef.update("volunteers",volunteers)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d(TAG,"Successfully updated!");
+                                                    join.setVisibility(View.GONE);
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG,"Failed to update.",e);
+
+                                                }
+                                            });
+                                    db.collection("Users").document(userId).get()
+                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                    User user = documentSnapshot.toObject(User.class);
+                                                    List<String> volunteeredSites = new ArrayList<>();
+                                                    if(user!=null){
+                                                        if(user.getSites()!=null){
+                                                            volunteeredSites = user.getSites();
                                                         }
-                                                    })
-                                                    .addOnFailureListener(new OnFailureListener() {
-                                                        @Override
-                                                        public void onFailure(@NonNull Exception e) {
-                                                            Log.w(TAG,"Failed to update.",e);
+                                                        else {
 
                                                         }
-                                                    });
-                                            db.collection("Users").document(userId).get()
-                                                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                        @Override
-                                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                            User user = documentSnapshot.toObject(User.class);
-                                                            List<String> volunteeredSites = new ArrayList<>();
-                                                            if(user!=null){
-                                                                if(user.getSites()!=null){
-                                                                    volunteeredSites = user.getSites();
-                                                                }
-                                                                else {
+                                                        volunteeredSites.add(site.getId());
+                                                        db.collection("Users").document(userId)
+                                                                .update("sites",volunteeredSites)
+                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                    @Override
+                                                                    public void onSuccess(Void aVoid) {
+                                                                        Log.d(TAG,"Successfully updated user.");
+                                                                    }
+                                                                })
+                                                                .addOnFailureListener(new OnFailureListener() {
+                                                                    @Override
+                                                                    public void onFailure(@NonNull Exception e) {
+                                                                        Log.w(TAG,"Failed to update user.");
+                                                                    }
+                                                                });
+                                                    }
+                                                }
+                                            });
 
-                                                                }
-                                                                volunteeredSites.add(site.getId());
-                                                                db.collection("Users").document(userId)
-                                                                        .update("sites",volunteeredSites)
-                                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                            @Override
-                                                                            public void onSuccess(Void aVoid) {
-                                                                                Log.d(TAG,"Successfully updated user.");
-                                                                            }
-                                                                        })
-                                                                        .addOnFailureListener(new OnFailureListener() {
-                                                                            @Override
-                                                                            public void onFailure(@NonNull Exception e) {
-                                                                                Log.w(TAG,"Failed to update user.");
-                                                                            }
-                                                                        });
-                                                            }
-                                                        }
-                                                    });
+                                }
+                            })
+                            .setPositiveButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    Toast.makeText(SiteDetail.this, "Failure", Toast.LENGTH_SHORT).show();
+                                    dialogInterface.dismiss();
+                                }
+                            });
 
-                                        }
-                                    })
-                                    .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            Toast.makeText(SiteDetail.this, "Failure", Toast.LENGTH_SHORT).show();
-                                            dialogInterface.dismiss();
-                                        }
-                                    });
+                    builder.create().show();
+                }
+            });
 
-                            builder.create().show();
-                        }
-                    });
-
-                }else if (site.getOwner()!=null && site.getOwner()==userId){
-                    join.setVisibility(View.GONE);
-                }}
+        }
+        //}
 
 
-        });
+//        });
         invite = findViewById(R.id.invite);
 
         invite.setOnClickListener(new View.OnClickListener() {
