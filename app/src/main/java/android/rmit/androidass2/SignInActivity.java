@@ -91,7 +91,7 @@ public class SignInActivity extends AppCompatActivity {
                             newuser.setEmail(user.getEmail());
                             newuser.setFirstname(user.getDisplayName());
                             addUser(newuser, user.getUid());
-                            if (user != null) {
+                            if (user.isEmailVerified()) {
                                 SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("uid", user.getUid());
@@ -119,6 +119,8 @@ public class SignInActivity extends AppCompatActivity {
                                 });
                                 startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
 
+                            } else {
+                                startActivity(new Intent(SignInActivity.this, VerifyEmail.class));
                             }
 
                         } else {
@@ -247,7 +249,7 @@ public class SignInActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");
                                 final FirebaseUser user = mAuth.getCurrentUser();
-                                if (user != null) {
+                                if (user.isEmailVerified()) {
                                     SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPreferences.edit();
                                     editor.putString("uid", user.getUid());
@@ -274,6 +276,9 @@ public class SignInActivity extends AppCompatActivity {
                                         }
                                     });
                                     startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
+
+                                } else {
+                                    startActivity(new Intent(SignInActivity.this,  VerifyEmail.class));
 
                                 }
 
