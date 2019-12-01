@@ -29,8 +29,7 @@
             android:layout_height="451dp"
 
             android:foregroundGravity="center_vertical|center_horizontal"
-            android:orientation="vertical"
-            android:paddingBottom="30dp">
+            android:orientation="vertical">
 
 
             <Button
@@ -123,7 +122,6 @@
                 android:id="@+id/siteinfotab"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="30dp"
                 android:ems="10"
                 android:text="TextView"
                 android:textColor="#616161"
@@ -135,11 +133,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="25dp"
                 android:layout_weight="1"
                 android:background="@drawable/rounded_button"
                 android:backgroundTint="#5DBCD2"
                 android:paddingLeft="85dp"
+                android:paddingTop="10dp"
                 android:paddingRight="85dp"
+                android:paddingBottom="10dp"
                 android:text="Save"
                 android:textColor="#FFFFFF"
                 android:textSize="16sp" />

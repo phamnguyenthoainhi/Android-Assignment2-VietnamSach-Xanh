@@ -51,7 +51,6 @@ public class DetailTab extends Fragment {
     private Site site;
     private Button savebtn;
     private Button editbtn;
-
     private List<Place.Field> fields;
     private int AUTOCOMPLETE_REQUEST_CODE = 1;
     private DatePicker datePicker;
@@ -63,6 +62,7 @@ public class DetailTab extends Fragment {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
+//    Fetch all the related information of a site based on its id
     private void fetchdetailbyid(String id) {
         db.collection("Sites").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -81,8 +81,6 @@ public class DetailTab extends Fragment {
                     Calendar currentValues = Calendar.getInstance();
                     currentValues.setTimeInMillis(site.getDateTime());
 
-
-
                     datePicker.updateDate(currentValues.get(Calendar.YEAR),currentValues.get(Calendar.MONTH),currentValues.get(Calendar.DAY_OF_MONTH));
                     timePicker.setCurrentHour(currentValues.get(Calendar.HOUR));
                     timePicker.setCurrentMinute(currentValues.get(Calendar.MINUTE));
@@ -93,6 +91,7 @@ public class DetailTab extends Fragment {
 
     }
 
+//    Convert from milliseconds to form "HH:mm:ss , dd/mm/yy"
     private String convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
 
@@ -123,8 +122,8 @@ public class DetailTab extends Fragment {
         return s;
     }
 
+//    Update site with new values
     private void updateSite(){
-
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
@@ -173,13 +172,11 @@ public class DetailTab extends Fragment {
         siteinfo = view.findViewById(R.id.siteinfotab);
         editbtn = view.findViewById(R.id.editbuttondetail);
         savebtn = view.findViewById(R.id.savebuttondetail);
+        fetchdetailbyid(sid);
 
         if (currentUser.getUid().equals("QnZasbpIgNMYpCQ8BIy682YwxS93")){
             editbtn.setVisibility(View.INVISIBLE);
         }
-
-
-
 
         sitelocation.setEnabled(false);
         sitedate.setEnabled(false);
@@ -197,8 +194,6 @@ public class DetailTab extends Fragment {
             }
         });
         savebtn.setVisibility(View.INVISIBLE);
-
-
         savebtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -213,8 +208,6 @@ public class DetailTab extends Fragment {
                                 site.setLocation(sitelocation.getText().toString());
                                 site.setName(siteinfo.getText().toString());
                                 updateSite();
-
-
                             }
                         })
                         .setPositiveButton("No", new DialogInterface.OnClickListener() {
@@ -236,7 +229,6 @@ public class DetailTab extends Fragment {
             }
         });
 
-        fetchdetailbyid(sid);
 
 
         fields = Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS);
@@ -306,7 +298,6 @@ public class DetailTab extends Fragment {
             if(resultCode==RESULT_OK){
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 sitelocation.setText(place.getAddress());
-//                site.setLocation(place.getAddress());
             }
         }else if(resultCode == AutocompleteActivity.RESULT_ERROR){
             Status status = Autocomplete.getStatusFromIntent(data);

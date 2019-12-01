@@ -43,7 +43,7 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1"
             android:background="@drawable/rounded_button"
-            android:backgroundTint="#A4D8C4"
+            android:backgroundTint="#87C7AF"
             android:text="Verify"
             android:textColor="#FFFFFF"
             android:textSize="14sp" />
@@ -55,7 +55,7 @@
             android:layout_marginRight="5dp"
             android:layout_weight="1"
             android:background="@drawable/rounded_button"
-            android:backgroundTint="#F5A598"
+            android:backgroundTint="#DF897D"
             android:text="Skip"
             android:textColor="#FFFFFF" />
     </LinearLayout>

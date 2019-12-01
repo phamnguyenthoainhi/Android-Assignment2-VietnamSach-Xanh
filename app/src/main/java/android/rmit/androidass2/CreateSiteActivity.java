@@ -27,6 +27,8 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -55,8 +57,6 @@ public class CreateSiteActivity extends AppCompatActivity {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         locationInput = findViewById(R.id.location);
-
-
 
         fields = Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS);
 
@@ -129,7 +129,9 @@ public class CreateSiteActivity extends AppCompatActivity {
             public void onClick(View view) {
                 SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
                 String userId = sharedPreferences.getString("uid",null);
-                final Site site = new Site(location,time, name.getText().toString(), userId);
+
+                FirebaseUser loggedUser = FirebaseAuth.getInstance().getCurrentUser();
+                final Site site = new Site(location,time, name.getText().toString(), loggedUser.getUid());
 
 
                 db.collection("Sites")

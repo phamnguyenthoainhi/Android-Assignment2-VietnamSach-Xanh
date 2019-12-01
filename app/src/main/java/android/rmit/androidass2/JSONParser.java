@@ -34,14 +34,14 @@ public class JSONParser {
                         }
                     routes.add(steps);
                     }
-
-
                 }
 
-        }catch(JSONException e){
+        } catch(JSONException e){
             e.printStackTrace();
-        }catch(Exception e){}
+        } catch(Exception e){
 
+
+        }
 
         return routes;
     }

@@ -26,8 +26,8 @@ public class NotificationService extends FirebaseMessagingService {
             final Intent intent = new Intent(this, SiteDetail.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.putExtra("id", remoteMessage.getData().get("id"));
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new Notification.Builder(this)
                 .setContentTitle(remoteMessage.getNotification().getTitle())
@@ -36,13 +36,12 @@ public class NotificationService extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent)
                 .build();
 
-
             NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notification.flags = Notification.FLAG_AUTO_CANCEL;
 
             manager.notify(123, notification);
         }
-        else{
+        else {
             final Intent intent = new Intent(this, ManageSiteActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             intent.putExtra("selectedsiteid", remoteMessage.getData().get("id"));

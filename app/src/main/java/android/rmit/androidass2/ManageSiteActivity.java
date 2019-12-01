@@ -47,7 +47,6 @@ public class ManageSiteActivity extends AppCompatActivity {
         Button back = findViewById(R.id.backfrommanagesite);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-        //sid = getIntent().getExtras().getString("selectedsiteid");
         onNewIntent(getIntent());
 
         back.setOnClickListener(new View.OnClickListener() {
@@ -57,8 +56,8 @@ public class ManageSiteActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         pagerController = new PagerController(getSupportFragmentManager(), tabLayout.getTabCount());
-//        setSupportActionBar(toolbar);
         viewPager.setAdapter(pagerController);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener() {

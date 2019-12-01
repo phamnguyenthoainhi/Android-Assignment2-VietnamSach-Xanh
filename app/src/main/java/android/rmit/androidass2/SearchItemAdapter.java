@@ -16,10 +16,7 @@ public class SearchItemAdapter extends RecyclerView.Adapter<SearchItemAdapter.Se
 
     ArrayList<Site> mySiteList ;
     SearchItemViewHolder.OnSiteListener myOnSiteListener;
-
     private static final String TAG = "SearchItemAdapter";
-
-
 
     @NonNull
     @Override
@@ -37,8 +34,6 @@ public class SearchItemAdapter extends RecyclerView.Adapter<SearchItemAdapter.Se
 
     @Override
     public void onBindViewHolder(@NonNull SearchItemViewHolder holder, int position) {
-
-//        holder.sitelocation.setText(mySiteList.get(position).getLocation());
         holder.searchsitelocation.setText(mySiteList.get(position).getLocation());
         holder.seachsitename.setText(mySiteList.get(position).getName());
     }
@@ -53,24 +48,18 @@ public class SearchItemAdapter extends RecyclerView.Adapter<SearchItemAdapter.Se
         Log.d(TAG, "filter: " +text);
         Log.d(TAG, "filter: mysites" + sites.toString());
         ArrayList<Site> filteredSites = new ArrayList<>();
-//        ArrayList<Site> filteredSites = new ArrayList<>();
         for (Site site: sites) {
-            Log.d(TAG, "filter: mysites" + site.getLocation());
             if (site.getLocation().contains(text)) {
                 Log.d(TAG, "filter: contains " + site);
                 filteredSites.add(site);
             }
-
         }
         Log.d(TAG, "filter: finished" +filteredSites.toString());
         mySiteList = filteredSites;
-
         notifyDataSetChanged();
-//        return  mySiteList;
     }
 
     public static class SearchItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        // each data item is just a string in this case
         TextView seachsitename;
         TextView searchsitelocation;
         OnSiteListener onSiteListener;

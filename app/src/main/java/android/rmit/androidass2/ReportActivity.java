@@ -27,9 +27,7 @@ public class ReportActivity extends AppCompatActivity {
     Long sum = 0L;
     private static final String TAG = "ReportActivity";
     Button fromreport;
-
-
-
+//    Fetch report of all sites
     public void fetchReport() {
             db.collection("Reports").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
@@ -40,13 +38,14 @@ public class ReportActivity extends AppCompatActivity {
                             Long num = (Long) queryDocumentSnapshot.get("amountOfGarbage");
                             sum += num;
                         }
-
                         totalGarbage.setText(sum.toString());
                     }
                 }
             });
 
     }
+
+// Fetch All volunteers
     public void fetchVolunteers() {
         db.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -54,30 +53,17 @@ public class ReportActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Integer count = 0;
                     for (QueryDocumentSnapshot queryDocumentSnapshot: task.getResult()) {
-
-
-
                         ArrayList<String> sites = (ArrayList<String>) queryDocumentSnapshot.get("sites");
-
-
                         if (!(sites == null || sites.size() == 0)) {
                             Log.d(TAG, "onComplete: 11");
                             count +=1;
                         }
-
                     }
                     totalVolunteers.setText(String.valueOf(count));
-
                 }
-
             }
         });
     }
-
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +79,7 @@ public class ReportActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         fetchReport();
         fetchVolunteers();
     }

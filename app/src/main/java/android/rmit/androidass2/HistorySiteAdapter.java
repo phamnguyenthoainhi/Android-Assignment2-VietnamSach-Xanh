@@ -32,9 +32,6 @@ public class HistorySiteAdapter extends RecyclerView.Adapter<HistorySiteAdapter.
 
     }
 
-
-
-
     @NonNull
     @Override
     public HistorySiteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

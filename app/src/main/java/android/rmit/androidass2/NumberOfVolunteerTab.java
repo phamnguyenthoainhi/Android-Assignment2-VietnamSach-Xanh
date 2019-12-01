@@ -54,9 +54,8 @@ public class NumberOfVolunteerTab extends Fragment {
     Context context;
 
 
+//Fetch all volunteers of a site
     public ArrayList<String> fetchVolunteersId(String id) {
-        Log.d(TAG, "fetchVolunteersId: called");
-
         db.collection("SitesVolunteers").document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -70,13 +69,12 @@ public class NumberOfVolunteerTab extends Fragment {
                     }
                 });
         return volunteersid;
-
     }
 
+
+//Fetch all information of users who are volunteers
     public void fetchvolunteerinfo() {
-        Log.d(TAG, "fetchvolunteerinfo: called");
         if (!volunteersid.isEmpty()) {
-            Log.d(TAG, "fetchvolunteerinfo: not empty");
             for (String id: volunteersid) {
                 db.collection("Users").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -103,15 +101,11 @@ public class NumberOfVolunteerTab extends Fragment {
                         recyclerView.setLayoutManager(layoutManager);
                         VolunteerAdapter volunteerAdapter = new VolunteerAdapter(volunteers, context);
                         recyclerView.setAdapter(volunteerAdapter);
-
-
-
                     }
                 });
             }
         }
     }
-
 
     public void requestData(final String siteId, String userId){
         db.collection("Users").document(userId).get()
@@ -145,30 +139,17 @@ public class NumberOfVolunteerTab extends Fragment {
                 });
     }
 
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.volunteer_tab, container, false);
-
-
-
         ManageSiteActivity manageSiteActivity = (ManageSiteActivity) getActivity();
-
         SharedPreferences sharedPreferences = manageSiteActivity.getSharedPreferences("id",Context.MODE_PRIVATE);
         final String userId = sharedPreferences.getString("uid",null);
         final String sid = manageSiteActivity.getid();
         context = getContext();
-
         recyclerView = view.findViewById(R.id.vltrecyclerview);
-
-
-
         fetchVolunteersId(sid);
-
-
         Button download = view.findViewById(R.id.downloadbutton);
 
         download.setOnClickListener(new View.OnClickListener() {

@@ -23,14 +23,16 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
 public class ManageAccountActivity extends AppCompatActivity {
+    private static final String TAG = "ManageAccountActivity";
+
     TextView logoutbtn;
-    private FirebaseAuth mAuth;
     Button save;
     Button edit;
     String currentUser ;
@@ -41,20 +43,16 @@ public class ManageAccountActivity extends AppCompatActivity {
     EditText accountlastname;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+    FirebaseAuth mAuth;
+    FirebaseUser loggeduser;
     User user;
     ArrayList<String> sidlist = new ArrayList<>();
     ArrayList<Site> sites = new ArrayList<>();
 
 
-    private static final String TAG = "ManageAccountActivity";
-
+//    Fetch related information of logged in user
     public void fetchCurrentUser() {
-
-        Log.d(TAG, "fetchCurrentUser: "+ currentUser);
-
-
-        db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.collection("Users").document(loggeduser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -67,18 +65,16 @@ public class ManageAccountActivity extends AppCompatActivity {
                         accountlastname.setText(user.getLastname());
 
                         welcome.setText("Welcome, "+ user.getFirstname() + " " + user.getLastname());
-
-
                     }
+
                     if (task.getResult().get("phone") == null) {
                         user.setPhone("");
 
                     } else {
                         user.setPhone(task.getResult().get("phone").toString());
                         accountphone.setText(user.getPhone());
-
-
                     }
+
                     if (task.getResult().get("gender") == null) {
                         user.setGender("Other");
 
@@ -90,72 +86,61 @@ public class ManageAccountActivity extends AppCompatActivity {
                     if (task.getResult().get("firstname") == null){
                         user.setFirstname("");
                     } else {
-
                         user.setFirstname(task.getResult().get("firstname").toString());
                         accountfirstname.setText(user.getFirstname());
-
                         welcome.setText("Welcome, "+ user.getFirstname() + " " + user.getLastname());
-
                     }
+
                     if (task.getResult().get("email") == null) {
                         user.setEmail("");
                     } else {
                         user.setEmail(task.getResult().get("email").toString());
                         accountemail.setText(user.getEmail());
-
                     }
-
-
                 }
             }
         });
     }
 
-
+//    Fetch all the site that the user has joined
     public void fetchSitesByUser() {
-        db.collection("Users").document(currentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        Log.d(TAG, "onComplete: fetch site by user: "+ loggeduser.getUid());
+        db.collection("Users").document(loggeduser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
-                    Log.d(TAG, "onComplete: fetchsite "+ task.getResult());
+                    Log.d(TAG, "onComplete: fetch site by user " + task.getResult().get("sites"));
+
                     sidlist = (ArrayList<String>) task.getResult().get("sites");
                     if (sidlist != null ){
                         for (final String sid: sidlist) {
                             db.collection("Sites").document(sid).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    Log.d(TAG, "onComplete: fetchsites2 "+ task.getResult().get("location"));
                                     Site site = new Site();
-
                                     site.setLocation(task.getResult().get("location").toString());
                                     site.setName(task.getResult().get("name").toString());
                                     site.setDateTime((Long) task.getResult().get("dateTime"));
                                     sites.add(site);
 
-
                                     RecyclerView recyclerView = findViewById(R.id.historyrecyclerview);
                                     recyclerView.setHasFixedSize(true);
-
                                     LinearLayoutManager layoutManager = new LinearLayoutManager(ManageAccountActivity.this);
                                     recyclerView.setLayoutManager(layoutManager);
-
                                     HistorySiteAdapter adapter = new HistorySiteAdapter(sites);
                                     recyclerView.setAdapter(adapter);
-
                                 }
                             });
                         }
                     }
-
-
                 }
             }
         });
     }
 
-
+// Update user with new values
     private void updateUser(){
-        db.collection("Users").document(currentUser).set(user)
+        db.collection("Users").document(loggeduser.getUid()).set(user)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -170,14 +155,13 @@ public class ManageAccountActivity extends AppCompatActivity {
                 });
     }
 
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_account);
-
         SharedPreferences shared = getSharedPreferences("id", MODE_PRIVATE);
         currentUser = (shared.getString("uid", ""));
-
         logoutbtn = findViewById(R.id.logoutbtn);
         save = findViewById(R.id.saveaccount);
         edit = findViewById(R.id.editaccount);
@@ -194,8 +178,13 @@ public class ManageAccountActivity extends AppCompatActivity {
         save.setVisibility(View.INVISIBLE);
         logoutbtn.setText("Log Out");
         logoutbtn.setClickable(true);
-        fetchCurrentUser();
         mAuth = FirebaseAuth.getInstance();
+        loggeduser = mAuth.getCurrentUser();
+
+        fetchCurrentUser();
+        fetchSitesByUser();
+
+
         logoutbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,6 +194,7 @@ public class ManageAccountActivity extends AppCompatActivity {
                 finish();
             }
         });
+
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,12 +207,10 @@ public class ManageAccountActivity extends AppCompatActivity {
                 accountfirstname.requestFocus();
             }
         });
-        fetchSitesByUser();
 
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(ManageAccountActivity.this)
                         .setTitle("Confirmation")
                         .setMessage("Do you want to apply these changes?")
@@ -233,6 +221,7 @@ public class ManageAccountActivity extends AppCompatActivity {
                                 user.setLastname(accountlastname.getText().toString());
                                 user.setPhone(accountphone.getText().toString());
                                 user.setEmail(accountemail.getText().toString());
+                                loggeduser.updateEmail(accountemail.getText().toString());
                                 welcome.setText("Welcome, "+ accountfirstname.getText().toString() + " " + accountlastname.getText().toString());
 
                                 updateUser();

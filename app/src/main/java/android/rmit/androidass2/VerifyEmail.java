@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -37,7 +38,10 @@ public class VerifyEmail extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
+                                    Toast.makeText(VerifyEmail.this, "Success", Toast.LENGTH_SHORT).show();
                                     Log.d(TAG, "onComplete: successful verifed email");
+                                    startActivity(new Intent(VerifyEmail.this, MapsActivity.class));
+
                                 }
                             }
                         });
