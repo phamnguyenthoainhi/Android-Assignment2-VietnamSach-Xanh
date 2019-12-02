@@ -34,19 +34,18 @@ public class OutcomeTab extends Fragment {
     private String TAG = "Outcome Tab";
     private EditText garbage;
     Button edit;
-     EditText volunteers;
-     ArrayList<String> numOfVolunteers;
-
+    EditText volunteers;
+    ArrayList<String> numOfVolunteers;
     FirebaseFirestore firestore;
 
 
+//    Fetch a report data of a site
     void fetchDataReport(String id){
         db = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
                 .build();
         db.setFirestoreSettings(settings);
-
 
         db.collection("Reports").document(id).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -66,10 +65,9 @@ public class OutcomeTab extends Fragment {
                 });
     }
 
-
-
+//Fetch all volunteers of a site
     public void fetchVolunteers(String sid) {
- db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
         db.collection("SitesVolunteers").document(sid).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
@@ -77,16 +75,12 @@ public class OutcomeTab extends Fragment {
                         DocumentSnapshot documentSnapshot = task.getResult();
 
                         numOfVolunteers = (ArrayList<String>) documentSnapshot.get("volunteers");
-
-                        Log.d(TAG, "onComplete: "+ numOfVolunteers.size());
-
                         volunteers.setText(String.valueOf(numOfVolunteers.size()));
-
                     }
                 });
-
     }
 
+//    Update report with new value
     void updateReport(String id, String newData){
         DocumentReference siteRef = db.collection("Reports").document(id);
         siteRef.update("amountOfGarbage",Integer.parseInt(newData))
@@ -134,7 +128,7 @@ public class OutcomeTab extends Fragment {
                 save.setVisibility(View.VISIBLE);
                 edit.setVisibility(View.INVISIBLE);
                 garbage.setEnabled(true);
-                volunteers.setEnabled(true);
+
 
             }
         });
@@ -172,7 +166,7 @@ public class OutcomeTab extends Fragment {
 
                 edit.setVisibility(View.VISIBLE);
                 garbage.setEnabled(false);
-                volunteers.setEnabled(false);
+
             }
         });
 

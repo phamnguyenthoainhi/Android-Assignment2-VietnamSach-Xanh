@@ -118,11 +118,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ClusterManager<SiteLocation> clusterManager;
     SiteLocation clickedLocation;
     List<String> cityList = new ArrayList<>();
-
-
-
-
     LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
 
 
     private String superuser = "QnZasbpIgNMYpCQ8BIy682YwxS93";
@@ -138,27 +135,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        sites = new ArrayList<>();
-        searchbar = findViewById(R.id.searchbar);
 
+
+        sites = new ArrayList<>();
+        fetchSites();
+
+
+
+        searchbar = findViewById(R.id.searchbar);
+        recyclerView = findViewById(R.id.resultsearchlist);
+        mapLayout = findViewById(R.id.maplayout);
         searchbar.setClickable(true);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
-
-
-
-
-
-        Log.d(TAG, "onCreate: map"+ currentUser);
-
-        recyclerView = findViewById(R.id.resultsearchlist);
-        mapLayout = findViewById(R.id.maplayout);
         recyclerView.setVisibility(View.INVISIBLE);
-
         Button refreshbtn = findViewById(R.id.refeshbtn);
 
-        fetchSites();
         initRecyclerView();
         filterbtn = findViewById(R.id.filterbtn);
         filterbtn.setClickable(true);
@@ -190,6 +182,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
+//        Filter to search for the site location
         searchbar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -208,16 +201,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
         refreshbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 sites = new ArrayList<>();
+                //clusterManager.clearItems();
                 fetchSites();
             }
         });
-
-
 
         refreshTokenId();
 
@@ -229,62 +220,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         requestPermission();
         client = LocationServices.getFusedLocationProviderClient(MapsActivity.this);
 
-
         createNavigationBar();
 
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        sites = new ArrayList<>();
+        fetchSites();
+    }
 
-
-
+    //    Class to custom marker
     public class CustomClusterManagerRenderer extends DefaultClusterRenderer<SiteLocation> {
         View marker;
         int dimention;
-
-
         IconGenerator iconGenerator;
         IconGenerator clusterIconGenerator;
 
-
         @Override
         protected void onBeforeClusterItemRendered(SiteLocation item, MarkerOptions markerOptions) {
-
-
-
             Bitmap icon = iconGenerator.makeIcon();
-
             markerOptions.icon(BitmapDescriptorFactory.fromBitmap(icon));
 
         }
 
         @Override
         protected boolean shouldRenderAsCluster(Cluster<SiteLocation> cluster) {
-            return cluster.getSize() > 5;
+            return cluster.getSize() > 2;
+
         }
 
         public CustomClusterManagerRenderer() {
             super(MapsActivity.this, mMap, clusterManager);
             clusterIconGenerator = new IconGenerator(MapsActivity.this);
             iconGenerator = new IconGenerator(MapsActivity.this);
-
-
             marker = getLayoutInflater().inflate(R.layout.custom_marker, null);
-
             clusterIconGenerator.setContentView(marker);
             ImageView imageView = new ImageView(MapsActivity.this);
             imageView.setImageResource(R.drawable.markerplastic);
             dimention = (int) getResources().getDimension(R.dimen.my_value);
             imageView.setPadding(2, 2, 2, 2);
             imageView.setLayoutParams(new ViewGroup.LayoutParams(dimention, dimention));
-
-
             iconGenerator.setContentView(imageView);
 
         }
-
-
     }
 
+
+//    function to hide the ketboard
     public void hideKeyBoard(View view) {
 
         InputMethodManager inputMethodManager =
@@ -292,20 +276,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.
                 getWindowToken(), 0);
-
-
     }
+
 
     private void refreshTokenId(){
         SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
         final String userId = sharedPreferences.getString("uid",null);
-        if(userId!=null) {
+        if(currentUser.getUid()!=null) {
             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                 @Override
                 public void onSuccess(InstanceIdResult instanceIdResult) {
                     String token = instanceIdResult.getToken();
 
-                    db.collection("Tokens").document(userId).set(new UserToken(token))
+                    db.collection("Tokens").document(currentUser.getUid()).set(new UserToken(token))
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
@@ -324,16 +307,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+//    Create and add values for the recycle view which is in the filter
     public void initRecyclerView() {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-
         recyclerView.setHasFixedSize(true);
         adapter = new SearchItemAdapter(sites, MapsActivity.this);
-
         recyclerView.setLayoutManager(layoutManager);
-
-
         recyclerView.setAdapter(adapter);
 
     }
@@ -364,9 +344,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
+//Create the navigation bar
     public void createNavigationBar() {
-
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomnavigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -399,7 +378,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-
+// Fetch all the sites in the database
     public void fetchSites() {
         Log.d(TAG, "fetchSites: called");
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -430,8 +409,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
     }
-    private void setUpClusterManager(final GoogleMap googleMap){
-        clusterManager = new ClusterManager<>(this,googleMap);
+
+    private void setUpClusterManager(final GoogleMap googleMap) {
+        clusterManager = new ClusterManager<>(this, googleMap);
+        //clusterManager.clearItems();
         googleMap.setOnCameraIdleListener(clusterManager);
         googleMap.setOnMarkerClickListener(clusterManager);
         googleMap.setOnInfoWindowClickListener(clusterManager);
@@ -449,7 +430,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (currentUser != null) {
 //                            Toast.makeText(MapsActivity.this, ""+currentUser.getUid(), Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
-                            intent.putExtra("id",siteLocation.getSnippet());
+                            intent.putExtra("id", siteLocation.getSnippet());
                             startActivity(intent);
                         } else {
                             startActivity(new Intent(MapsActivity.this, SignInActivity.class));
@@ -470,14 +451,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         clusterManager.setOnClusterClickListener(new ClusterManager.OnClusterClickListener<SiteLocation>() {
             @Override
             public boolean onClusterClick(Cluster<SiteLocation> cluster) {
-                //googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.getPosition(),(float)Math.floor(googleMap.getCameraPosition().zoom+1)),300,null);
-                LatLngBounds.Builder b = LatLngBounds.builder();
-                for(SiteLocation siteLocation: cluster.getItems()){
-                    b.include(siteLocation.getPosition());
-                }
-                final LatLngBounds bounds = b.build();
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds,100));
 
+                if(cluster!=null) {
+                    LatLngBounds.Builder b = LatLngBounds.builder();
+                    for (SiteLocation siteLocation : cluster.getItems()) {
+                        b.include(siteLocation.getPosition());
+                    }
+                    final LatLngBounds bounds = b.build();
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                }
 
                 return true;
             }
@@ -486,36 +468,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-//    private Address geoLocate(Site site) {
-//
-//        try {
-//            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-//            if (site != null) {
-//                List<Address> addressList = geocoder.getFromLocationName(site.getLocation(), 1);
-//                while (addressList.size() == 0 ) {
-//                    addressList = geocoder.getFromLocationName(site.getLocation(), 1);
-//                }
-//
-//                if (addressList.size() > 0) {
-//                    address = addressList.get(0);
-//                }
-//            }
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return address;
-//    }
 
     public void createMarker(double latitude, double longitude, String title, String id) {
         SiteLocation siteLocation = new SiteLocation(title,id,latitude,longitude);
         clusterManager.addItem(siteLocation);
         clusterManager.setRenderer(new CustomClusterManagerRenderer());
-
         clusterManager.cluster();
         clusterManager.getMarkerCollection().setOnInfoWindowAdapter(new CustomWindowAdapter(MapsActivity.this));
-
-
 
     }
 
@@ -523,9 +482,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(false);
-
         mMap.setPadding(0, 0, 30, 0);
-
         getPosition(MapsActivity.this);
         setUpClusterManager(mMap);
 
@@ -552,27 +509,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String key = getString(R.string.google_maps_key);
         return "https://maps.googleapis.com/maps/api/geocode/json?address="+location.replaceAll("\\s","+")+"&key="+key;
     }
-
-//    @Override
-//    public void onInfoWindowClick(Marker marker) {
-//        SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sharedPreferences.edit();
-//        if (marker.getTag() != null) {
-//            editor.putString("sid", marker.getTag().toString());
-//            editor.commit();
-//            if (sharedPreferences.getString("sid", "") != null) {
-//                if (currentUser != null) {
-//                    Toast.makeText(this, ""+currentUser.getUid(), Toast.LENGTH_SHORT).show();
-//                    Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
-//                    intent.putExtra("id",marker.getTag().toString());
-//                    startActivity(intent);
-//                } else {
-//                    startActivity(new Intent(MapsActivity.this, SignInActivity.class));
-//                }
-//            }
-//        }
-//    }
-
 
     private static class RetrieveDirection extends AsyncTask<String, Void, String> {
         private Exception exception;
@@ -669,27 +605,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
+// Add markers based on numbers of sites
     public void addMarkers() {
         cityList = new ArrayList<>();
+        mMap.clear();
+        clusterManager.clearItems();
         for (final Site site: sites) {
-
             GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                 @Override
                 public void processFinish(LatLng output, String city) {
                     cityList.add(city);
-
                     createMarker(output.latitude,output.longitude,site.getName(),site.getId());
-
                     builder.include(output);
                     if(sites.indexOf(site)==sites.size()-1) {
-
                         LatLngBounds bounds = builder.build();
                         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 180);
                         mMap.animateCamera(cameraUpdate);
                     }
-
-
                 }
             });
             getLatLng.execute(constructUrl(site.getLocation()));
@@ -703,21 +635,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         client.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-
-
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
                 mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
-
-
                 builder.include(myLocation);
-
             }
         });
     }
 
-    public void fetchSites2() {
-        Log.d(TAG, "fetchSites: called");
+    public void fetchSitesToFilter() {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setTimestampsInSnapshotsEnabled(true)
@@ -781,24 +706,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LinearLayout ll = dialog.findViewById(R.id.checkbox_layout);
 
         for(String city: converted){
-            //Toast.makeText(this, city, Toast.LENGTH_SHORT).show();
             View cb = getLayoutInflater().inflate(R.layout.filter_checkbox,null);
             ((CheckBox)cb).setText(city);
             if(selectedCities.contains(city.toLowerCase().replaceAll("\\s",""))){
                 ((CheckBox)cb).setChecked(true);
             }
             checkBox.add(cb);
-
             ll.addView(cb);
         }
 
         alertDialog.setCanceledOnTouchOutside(true);
-
-
         filterradiogroup = dialog.findViewById(R.id.filterRadioGroup);
         Button apply = dialog.findViewById(R.id.apply);
+        fetchSitesToFilter();
 
-        fetchSites2();
         apply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -814,11 +735,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
                 }
-
                 alertDialog.dismiss();
                 addMarkersByFilter();
-
-
             }
 
         });
@@ -828,26 +746,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 RadioButton checkedbutton = filterradiogroup.findViewById(checkedId);
                 boolean isChecked = checkedbutton.isChecked();
-
-
-
                 if (isChecked && checkedbutton.getText().equals("6AM - 12AM")) {
-
-
                     for (int i = 0; i < filtersites.size(); i++) {
                         if (convertDate(filtersites.get(i).getDateTime()) <= 12 && convertDate(filtersites.get(i).getDateTime()) >= 6) {
                             afterfiltersites.add(filtersites.get(i));
-                            Log.d(TAG, "onCheckedChanged: 6"+ afterfiltersites);
                         }
                     }
                 }
                 if (isChecked && checkedbutton.getText().equals("1PM - 6PM")) {
-
-
                     for (int i = 0; i < filtersites.size(); i++) {
                         if (convertDate(filtersites.get(i).getDateTime()) >= 13 && convertDate(filtersites.get(i).getDateTime()) <= 18) {
                             afterfiltersites.add(filtersites.get(i));
-                            Log.d(TAG, "onCheckedChanged: 1"+ afterfiltersites);
 
                         }
                     }
@@ -857,22 +766,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         alert.show();
 
     }
+
+//Convert milliseconds to hour type
     public int convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
-
         calendar.setTimeInMillis(millsec);
-
         int mHour = calendar.get(Calendar.HOUR_OF_DAY);
         return mHour;
     }
 
+//    Add markers based on the filters
     public void addMarkersByFilter() {
         mMap.clear();
         clusterManager.clearItems();
-
-        Toast.makeText(this, selectedCities.toString(), Toast.LENGTH_SHORT).show();
         if (selectedCities.size() == 0 && afterfiltersites.size() > 0) {
-
             for (final Site site : afterfiltersites) {
                 GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                     @Override
@@ -894,7 +801,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         else if (afterfiltersites.size() == 0 &&  selectedCities.size() > 0 ) {
-
             for (final Site site : sites) {
                 GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                     @Override
@@ -921,18 +827,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         else if (selectedCities.size() > 0  &&  afterfiltersites.size() > 0) {
-
             for (final Site site : sites) {
                 GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
                     @Override
                     public void processFinish(LatLng output, String city) {
                         String current = convert(city).toLowerCase().replaceAll("\\s", "");
-                        for (Site after:afterfiltersites) {
+                        for (Site after : afterfiltersites) {
                             if (selectedCities.contains(current) && after.getId().equalsIgnoreCase(site.getId())) {
                                 createMarker(output.latitude, output.longitude, site.getName(), site.getId());
                                 builder.include(output);
-
-
                             }
                             if(afterfiltersites.indexOf(after)==afterfiltersites.size()-1) {
 
@@ -947,12 +850,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         }
-
         else if(selectedCities.size()==0 && afterfiltersites.size()==0){
             addMarkers();
         }
-
-
     }
 
     public String convert(String vietnamese){
@@ -980,18 +880,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public CustomWindowAdapter(final Context context) {
             this.context = context;
             window = LayoutInflater.from(context).inflate(R.layout.custom_info_window, null);
-
-
         }
+
         private void renderWindowButton(Marker marker, View view) {
             details = view.findViewById(R.id.details);
             campaignname = view.findViewById(R.id.campaignname);
-
             campaignname.setText(clickedLocation.getTitle());
-
-
         }
-
 
         @Override
         public View getInfoWindow(Marker marker) {
@@ -1005,8 +900,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             return window;
         }
-
     }
-
-
 }

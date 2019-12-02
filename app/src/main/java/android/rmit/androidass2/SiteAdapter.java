@@ -58,33 +58,18 @@ public class SiteAdapter extends RecyclerView.Adapter<SiteAdapter.SiteViewHolder
             super(v);
             sitelocation = v.findViewById(R.id.sitelocation);
             sitename = v.findViewById(R.id.sitename);
-
-
-
             this.onSiteListener = onSiteListener;
             v.setOnClickListener(this);
-
-
-            
- 
         }
 
         @Override
         public void onClick(View v) {
-
             onSiteListener.onSiteClick(getAdapterPosition());
-            
         }
-
 
         public interface OnSiteListener{
             void onSiteClick(int position);
             void deleteSite(int position);
-
-
         }
-
-
     }
-
 }

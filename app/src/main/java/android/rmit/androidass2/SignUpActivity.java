@@ -55,7 +55,9 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         final Button showpassword = findViewById(R.id.showpasswordsignup);
         final Button hidepassword = findViewById(R.id.hidepasswordsignup);
-
+        genderButtonGroup = findViewById(R.id.genderbuttongroup);
+        TextView signinfromsignup = findViewById(R.id.signinfromsignup);
+        signinfromsignup.setClickable(true);
         hidepassword.setVisibility(View.INVISIBLE);
 
         showpassword.setOnClickListener(new View.OnClickListener() {
@@ -78,12 +80,6 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-
-        genderButtonGroup = findViewById(R.id.genderbuttongroup);
-
-        TextView signinfromsignup = findViewById(R.id.signinfromsignup);
-
-        signinfromsignup.setClickable(true);
         signinfromsignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,13 +101,10 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 signup();
-
-
             }
         });
 
     }
-
 
 
     private void writeNewUser(final String userId, final String firstname,final String lastname,final String phone,final String gender, final String email) {
@@ -151,8 +144,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private User registerUser() {
 
+    private User registerUser() {
         String userfirstname = firstName.getText().toString().trim();
         String userlastname = lastName.getText().toString().trim();
         String userphone = phone.getText().toString().trim();
@@ -163,13 +156,10 @@ public class SignUpActivity extends AppCompatActivity {
         } else {
            usergender = gender;
         }
-        System.out.println("registerUser " +useremail);
-
-
         return new User(userfirstname, userlastname, userphone, usergender, useremail);
-
     }
 
+//    Check validation of inputs
     private boolean isValid() {
         if (firstName.getText().toString().trim().equalsIgnoreCase("")) {
             firstName.setError("This field can not be blank");
@@ -193,28 +183,27 @@ public class SignUpActivity extends AppCompatActivity {
             return false;
         }
 
-
         return true;
     }
 
 
-
+// Sign Up with email and password
     private void signup() {
-
         if (isValid()) {
             mAuth.createUserWithEmailAndPassword(emailSignup.getText().toString(), passwordSignup.getText().toString())
                     .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
+                            Log.d(TAG, "onComplete: SignUp");
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "createUserWithEmail:success");
                                 FirebaseUser user = mAuth.getCurrentUser();
                                 User signedUpUser = registerUser();
 
-
                                 writeNewUser(user.getUid(),signedUpUser.getFirstname(), signedUpUser.getLastname(), signedUpUser.getPhone(), signedUpUser.getGender(), signedUpUser.getEmail());
                                 startActivity(new Intent(SignUpActivity.this, SignInActivity.class));
+                                finish();
                             } else {
                                 // If sign in fails, display a message to the user.
                                 emailSignup.setText("");
@@ -228,6 +217,7 @@ public class SignUpActivity extends AppCompatActivity {
         }
     }
 
+//    Hide the key board
     public void hideKeyBoard(View view) {
         InputMethodManager inputMethodManager =
                 (InputMethodManager) getSystemService(

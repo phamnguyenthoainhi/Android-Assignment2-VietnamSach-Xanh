@@ -51,6 +51,9 @@ public class SignInActivity extends AppCompatActivity {
 
 
     private CallbackManager callbackManager;
+
+
+//    Check validation of input
     private boolean isValid() {
 
         if (emailSignIn.getText().toString().trim().equalsIgnoreCase("")){
@@ -88,10 +91,12 @@ public class SignInActivity extends AppCompatActivity {
 
                             final FirebaseUser user = mAuth.getCurrentUser();
                             User newuser = new User();
+
+                            Log.d(TAG, "onComplete: currentuser "+ user.getDisplayName());
                             newuser.setEmail(user.getEmail());
                             newuser.setFirstname(user.getDisplayName());
                             addUser(newuser, user.getUid());
-                            if (user != null) {
+                            if (user.isEmailVerified()) {
                                 SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("uid", user.getUid());
@@ -119,22 +124,24 @@ public class SignInActivity extends AppCompatActivity {
                                 });
                                 startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
 
+                            } else {
+                                startActivity(new Intent(SignInActivity.this, VerifyEmail.class));
                             }
+
 
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             Toast.makeText(SignInActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
                         }
 
-                        // ...
+
                     }
                 });
     }
 
-
+// Add new user to database
     public void addUser(User user, String docid){
 
         db.collection("Users")
@@ -198,7 +205,6 @@ public class SignInActivity extends AppCompatActivity {
         Button signIn = findViewById(R.id.signin);
         callbackManager = CallbackManager.Factory.create();
         loginButton = findViewById ( R.id.login_button);
-//        loginButton.setReadPermissions("email", "public_profile");
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -237,6 +243,7 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
+//    Sign In with email and password
     public void signin() {
         if (isValid()) {
             mAuth.signInWithEmailAndPassword(emailSignIn.getText().toString(), passwordSignIn.getText().toString())
@@ -247,7 +254,7 @@ public class SignInActivity extends AppCompatActivity {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "signInWithEmail:success");
                                 final FirebaseUser user = mAuth.getCurrentUser();
-                                if (user != null) {
+                                if (user.isEmailVerified()) {
                                     SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPreferences.edit();
                                     editor.putString("uid", user.getUid());
@@ -275,19 +282,18 @@ public class SignInActivity extends AppCompatActivity {
                                     });
                                     startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
 
-                                }
+                                } else {
+                                    startActivity(new Intent(SignInActivity.this,  VerifyEmail.class));
 
-//                            updateUI(user);
+                                }
                             } else {
                                 emailSignIn.setFocusable(true);
-                                emailSignIn.setError("Email is incorrect or has not been signed up");
-
+                                emailSignIn.setError("Email is incorrect or not yet signed up");
                                 passwordSignIn.setError("Incorrect password");
                                 // If sign in fails, display a message to the user.
                                 Log.w(TAG, "signInWithEmail:failure", task.getException());
                                 Toast.makeText(SignInActivity.this, "Authentication failed.",
                                         Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
                             }
                         }
                     });
@@ -296,6 +302,7 @@ public class SignInActivity extends AppCompatActivity {
 
     }
 
+//    Hide the keyboard
     public void hideKeyBoard(View view) {
                 InputMethodManager inputMethodManager =
                 (InputMethodManager) getSystemService(

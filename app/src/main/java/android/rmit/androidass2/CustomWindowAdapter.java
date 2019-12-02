@@ -1,7 +1,6 @@
 package android.rmit.androidass2;
 
 import android.content.Context;
-import android.rmit.androidass2.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -19,8 +18,8 @@ public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
         this.context = context;
         window = LayoutInflater.from(context).inflate(R.layout.custom_info_window, null);
 
-
     }
+
     private void renderWindowButton(Marker marker, View view) {
         String title = marker.getTitle();
         details = view.findViewById(R.id.details);
@@ -32,7 +31,6 @@ public class CustomWindowAdapter implements GoogleMap.InfoWindowAdapter {
 
 
     }
-
 
     @Override
     public View getInfoWindow(Marker marker) {

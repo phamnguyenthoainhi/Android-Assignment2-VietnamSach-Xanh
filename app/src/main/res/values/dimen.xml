@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="my_value">50dp</dimen>
+
+    <dimen name="my_value">40dp</dimen>
+
 </resources>

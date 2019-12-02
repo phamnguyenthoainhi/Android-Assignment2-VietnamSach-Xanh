@@ -21,6 +21,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -44,8 +46,12 @@ public class SiteDetail extends AppCompatActivity {
     EditText email;
     SharedPreferences sharedPreferences;
     String userId;
+    FirebaseUser loggedUser;
     Button join;
 
+
+
+//    Fetch the information of a site by id
     public void fetchSelectedSite(final String selectedSite) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
@@ -61,35 +67,29 @@ public class SiteDetail extends AppCompatActivity {
 
                         if(site!=null) {
                             site.setId(documentSnapshot.getId());
-
                             sitelocation.setText(site.getLocation());
                             siteinfo.setText(site.getName());
                             sitedate.setText(convertDate(site.getDateTime()));
-                            Log.d(TAG, "onComplete: site detail object" + site.getDateTime());
-
-                            if (site.getOwner() != null && site.getOwner().equals(userId)) {
+                            if (site.getOwner() != null && site.getOwner().equals(loggedUser.getUid())) {
                                 join.setVisibility(View.GONE);
                             }
                             if (site.getVolunteers() != null) {
-                                if (site.getVolunteers().contains(userId)) {
+                                if (site.getVolunteers().contains(loggedUser.getUid())) {
                                     join.setVisibility(View.GONE);
                                 }
                             }
                         }
-                        else{
+                        else {
                             db.collection("Sites").document(selectedSite).get()
                                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                         @Override
                                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                                             site = documentSnapshot.toObject(Site.class);
-
-
                                             site.setId(documentSnapshot.getId());
-
                                             sitelocation.setText(site.getLocation());
                                             siteinfo.setText(site.getName());
                                             sitedate.setText(convertDate(site.getDateTime()));
-                                            if (site.getOwner()!=null && site.getOwner().equals(userId)){
+                                            if (site.getOwner()!=null && site.getOwner().equals(loggedUser.getUid())){
                                                 join.setVisibility(View.GONE);
                                             }
                                             db.collection("SitesVolunteers").document(selectedSite)
@@ -113,6 +113,7 @@ public class SiteDetail extends AppCompatActivity {
 
     }
 
+//    convert milliseconds to "HH:mm, dd/mm/yy"
     public String convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
 
@@ -155,18 +156,16 @@ public class SiteDetail extends AppCompatActivity {
         backbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SiteDetail.this, MapsActivity.class));
+//                startActivity(new Intent(SiteDetail.this, MapsActivity.class));
+                finish();
             }
         });
+        loggedUser = FirebaseAuth.getInstance().getCurrentUser();
         onNewIntent(getIntent());
         sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
         userId = sharedPreferences.getString("uid",null);
         join = findViewById(R.id.joinbutton);
-//
-//        join.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-        if (site.getOwner()!=null && site.getOwner().equals(userId)){
+        if (site.getOwner()!=null && site.getOwner().equals(loggedUser.getUid())){
             join.setVisibility(View.GONE);
         }
         else {
@@ -182,7 +181,7 @@ public class SiteDetail extends AppCompatActivity {
                                     Toast.makeText(SiteDetail.this, "Success", Toast.LENGTH_SHORT).show();
 
                                     List<String> volunteers = site.getVolunteers();
-                                    volunteers.add(userId);
+                                    volunteers.add(loggedUser.getUid());
                                     site.setVolunteers(volunteers);
 
 
@@ -202,7 +201,7 @@ public class SiteDetail extends AppCompatActivity {
 
                                                 }
                                             });
-                                    db.collection("Users").document(userId).get()
+                                    db.collection("Users").document(loggedUser.getUid()).get()
                                             .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                                 @Override
                                                 public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -216,7 +215,7 @@ public class SiteDetail extends AppCompatActivity {
 
                                                         }
                                                         volunteeredSites.add(site.getId());
-                                                        db.collection("Users").document(userId)
+                                                        db.collection("Users").document(loggedUser.getUid())
                                                                 .update("sites",volunteeredSites)
                                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                     @Override
@@ -249,10 +248,6 @@ public class SiteDetail extends AppCompatActivity {
             });
 
         }
-        //}
-
-
-//        });
         invite = findViewById(R.id.invite);
 
         invite.setOnClickListener(new View.OnClickListener() {
@@ -263,10 +258,9 @@ public class SiteDetail extends AppCompatActivity {
             }
         });
 
-        Log.d(TAG, "onCreate: test" + convertDate(1300018752992l));
-
     }
 
+//    Show Invite Dialog
     public void showDialogInvite() {
         final AlertDialog.Builder alert = new AlertDialog.Builder(SiteDetail.this);
         final View dialogView = getLayoutInflater().inflate(R.layout.activity_invite, null);
@@ -277,10 +271,6 @@ public class SiteDetail extends AppCompatActivity {
         alert.setView(dialogView);
         final AlertDialog alertDialog = alert.create();
         alertDialog.setCanceledOnTouchOutside(true);
-
-
-
-
         invite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -294,7 +284,7 @@ public class SiteDetail extends AppCompatActivity {
 
                             DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
 
-                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, userId, documentSnapshot.getId(),site.getName());
+                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, loggedUser.getUid(), documentSnapshot.getId(),site.getName());
 
 
                             db.collection("Notifications").add(userNotification)

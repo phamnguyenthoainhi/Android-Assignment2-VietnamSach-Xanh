@@ -8,9 +8,6 @@ public class SiteLocation implements ClusterItem {
     private final String snippet;
     private final LatLng position;
 
-//    public SiteLocation(double lat, double lng) {
-//        this.position = new LatLng(lat,lng);
-//    }
 
     public SiteLocation(String title, String snippet, double lat, double lng) {
         this.title = title;

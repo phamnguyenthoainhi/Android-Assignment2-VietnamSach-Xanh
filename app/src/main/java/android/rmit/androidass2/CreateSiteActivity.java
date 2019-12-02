@@ -27,6 +27,8 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -56,8 +58,6 @@ public class CreateSiteActivity extends AppCompatActivity {
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         locationInput = findViewById(R.id.location);
 
-
-
         fields = Arrays.asList(Place.Field.ID,Place.Field.NAME,Place.Field.ADDRESS);
 
         locationInput.setOnClickListener(new View.OnClickListener() {
@@ -84,10 +84,10 @@ public class CreateSiteActivity extends AppCompatActivity {
         final View dateTime = findViewById(R.id.time);
         datePicker = dialogView.findViewById(R.id.date_picker);
         timePicker = dialogView.findViewById(R.id.time_picker);
-        datePicker.setMinDate(1587229200000L);
+        datePicker.setMinDate(System.currentTimeMillis());
         datePicker.setMaxDate(1587747600000L);
 
-        datePicker.updateDate(2020,3,22);
+        //datePicker.updateDate(2020,3,22);
         timePicker.setCurrentHour(9);
         timePicker.setCurrentMinute(0);
 
@@ -129,7 +129,9 @@ public class CreateSiteActivity extends AppCompatActivity {
             public void onClick(View view) {
                 SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
                 String userId = sharedPreferences.getString("uid",null);
-                final Site site = new Site(location,time, name.getText().toString(), userId);
+
+                FirebaseUser loggedUser = FirebaseAuth.getInstance().getCurrentUser();
+                final Site site = new Site(location,time, name.getText().toString(), loggedUser.getUid());
 
 
                 db.collection("Sites")
@@ -155,7 +157,7 @@ public class CreateSiteActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
                                                                 Toast.makeText(CreateSiteActivity.this, "Create site with volunteers", Toast.LENGTH_SHORT).show();
-                                                                startActivity(new Intent(CreateSiteActivity.this,SitesActivity.class));
+                                                                //startActivity(new Intent(CreateSiteActivity.this,SitesActivity.class));
                                                                 finish();
                                                             }
                                                         })
