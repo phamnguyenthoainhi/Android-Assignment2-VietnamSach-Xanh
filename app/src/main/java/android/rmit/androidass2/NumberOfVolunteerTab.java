@@ -52,19 +52,26 @@ public class NumberOfVolunteerTab extends Fragment {
     User volunteer;
     RecyclerView recyclerView;
     Context context;
+    VolunteerAdapter volunteerAdapter;
 
 
 //Fetch all volunteers of a site
     public ArrayList<String> fetchVolunteersId(String id) {
+
         db.collection("SitesVolunteers").document(id).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        DocumentSnapshot documentSnapshot = task.getResult();
+                        if (task.isSuccessful()) {
 
-                        volunteersid = (ArrayList<String>) documentSnapshot.get("volunteers");
+                            DocumentSnapshot documentSnapshot = task.getResult();
 
-                        fetchvolunteerinfo();
+                            volunteersid = (ArrayList<String>) documentSnapshot.get("volunteers");
+                            Log.d(TAG, "onComplete: volunteers in a site "+ volunteersid);
+
+                            fetchvolunteerinfo(volunteers);
+                        }
+
 
                     }
                 });
@@ -73,38 +80,49 @@ public class NumberOfVolunteerTab extends Fragment {
 
 
 //Fetch all information of users who are volunteers
-    public void fetchvolunteerinfo() {
+    public void fetchvolunteerinfo(final ArrayList<User> volunteers) {
         if (!volunteersid.isEmpty()) {
             for (String id: volunteersid) {
                 db.collection("Users").document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         volunteer = new User();
-                        volunteers = new ArrayList<>();
                         if(task.getResult().get("email")!=null) {
                             volunteer.setEmail(task.getResult().get("email").toString());
+                        } else {
+                            volunteer.setEmail("");
                         }
                         if(task.getResult().get("firstname")!=null) {
                             volunteer.setFirstname(task.getResult().get("firstname").toString());
+                        } else {
+                            volunteer.setFirstname("");
                         }
                         if(task.getResult().get("lastname")!=null) {
                             volunteer.setLastname(task.getResult().get("lastname").toString());
+                        } else {
+                            volunteer.setLastname("");
                         }
                         if(task.getResult().get("phone")!=null) {
                             volunteer.setPhone(task.getResult().get("phone").toString());
+                        } else {
+                            volunteer.setPhone("");
                         }
-                        volunteers.add(volunteer);
-                        Log.d(TAG, "onComplete: fetch volunteers" + volunteers.toString());
 
-                        recyclerView.setHasFixedSize(true);
-                        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
-                        recyclerView.setLayoutManager(layoutManager);
-                        VolunteerAdapter volunteerAdapter = new VolunteerAdapter(volunteers, context);
-                        recyclerView.setAdapter(volunteerAdapter);
+                        volunteers.add(volunteer);
+                        volunteerAdapter.notifyDataSetChanged();
                     }
                 });
             }
         }
+    }
+
+
+    public void initRecycleView() {
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        recyclerView.setLayoutManager(layoutManager);
+        volunteerAdapter = new VolunteerAdapter(volunteers, context);
+        recyclerView.setAdapter(volunteerAdapter);
     }
 
     public void requestData(final String siteId, String userId){
@@ -149,7 +167,9 @@ public class NumberOfVolunteerTab extends Fragment {
         final String sid = manageSiteActivity.getid();
         context = getContext();
         recyclerView = view.findViewById(R.id.vltrecyclerview);
+
         fetchVolunteersId(sid);
+
         Button download = view.findViewById(R.id.downloadbutton);
 
         download.setOnClickListener(new View.OnClickListener() {
@@ -173,6 +193,8 @@ public class NumberOfVolunteerTab extends Fragment {
                 builder.create().show();
             }
         });
+
+        initRecycleView();
 
         return view;
     }

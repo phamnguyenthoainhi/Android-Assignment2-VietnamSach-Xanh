@@ -46,6 +46,7 @@ public class VolunteerAdapter extends RecyclerView.Adapter<VolunteerAdapter.Volu
 
     @Override
     public int getItemCount() {
+
         return volunteerList.size();
     }
 
