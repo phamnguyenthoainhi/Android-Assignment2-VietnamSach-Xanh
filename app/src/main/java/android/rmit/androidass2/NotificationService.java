@@ -14,11 +14,14 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class NotificationService extends FirebaseMessagingService {
+    FirebaseUser currentuser = FirebaseAuth.getInstance().getCurrentUser();
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
@@ -73,7 +76,7 @@ public class NotificationService extends FirebaseMessagingService {
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("Tokens").document(userId).set(new UserToken(s))
+        db.collection("Tokens").document(currentuser.getUid()).set(new UserToken(s))
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

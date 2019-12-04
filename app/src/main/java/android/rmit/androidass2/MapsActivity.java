@@ -193,6 +193,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 adapter.filter(s, sites);
                 adapter.notifyDataSetChanged();
+                recyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -268,7 +269,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-//    function to hide the ketboard
+    //    function to hide the ketboard
     public void hideKeyBoard(View view) {
 
         InputMethodManager inputMethodManager =
@@ -307,7 +308,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-//    Create and add values for the recycle view which is in the filter
+    //    Create and add values for the recycle view which is in the filter
     public void initRecyclerView() {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -344,7 +345,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-//Create the navigation bar
+    //Create the navigation bar
     public void createNavigationBar() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomnavigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -378,7 +379,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-// Fetch all the sites in the database
+    // Fetch all the sites in the database
     public void fetchSites() {
         Log.d(TAG, "fetchSites: called");
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
@@ -605,10 +606,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-// Add markers based on numbers of sites
+    // Add markers based on numbers of sites
     public void addMarkers() {
         cityList = new ArrayList<>();
-        mMap.clear();
+
         clusterManager.clearItems();
         for (final Site site: sites) {
             GetLatLng getLatLng = new GetLatLng(new GetLatLng.AsyncResponse() {
@@ -748,6 +749,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 boolean isChecked = checkedbutton.isChecked();
                 if (isChecked && checkedbutton.getText().equals("6AM - 12AM")) {
                     for (int i = 0; i < filtersites.size(); i++) {
+                        Log.d(TAG, "onCheckedChanged: "+ convertDate(filtersites.get(i).getDateTime()));
                         if (convertDate(filtersites.get(i).getDateTime()) <= 12 && convertDate(filtersites.get(i).getDateTime()) >= 6) {
                             afterfiltersites.add(filtersites.get(i));
                         }
@@ -756,6 +758,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (isChecked && checkedbutton.getText().equals("1PM - 6PM")) {
                     for (int i = 0; i < filtersites.size(); i++) {
                         if (convertDate(filtersites.get(i).getDateTime()) >= 13 && convertDate(filtersites.get(i).getDateTime()) <= 18) {
+
                             afterfiltersites.add(filtersites.get(i));
 
                         }
@@ -767,7 +770,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-//Convert milliseconds to hour type
+    //Convert milliseconds to hour type
     public int convertDate(long millsec) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(millsec);
@@ -775,9 +778,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return mHour;
     }
 
-//    Add markers based on the filters
+    //    Add markers based on the filters
     public void addMarkersByFilter() {
         mMap.clear();
+        getPosition(MapsActivity.this);
         clusterManager.clearItems();
         if (selectedCities.size() == 0 && afterfiltersites.size() > 0) {
             for (final Site site : afterfiltersites) {

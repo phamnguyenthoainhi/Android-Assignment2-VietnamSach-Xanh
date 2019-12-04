@@ -241,6 +241,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(SitesActivity.this, ReportActivity.class));
+                finish();
             }
         });
 
@@ -250,7 +251,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(SitesActivity.this, MapsActivity.class));
+                startActivity(new Intent(SitesActivity.this, MapsActivity.class));
                 finish();
             }
         });
@@ -296,7 +297,6 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         Intent intent = new Intent(SitesActivity.this, ManageSiteActivity.class);
         intent.putExtra("selectedsiteid",sites.get(position).getId());
         startActivity(intent);
-        //finish();
     }
 
     @Override

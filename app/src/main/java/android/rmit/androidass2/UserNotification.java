@@ -3,7 +3,6 @@ package android.rmit.androidass2;
 
 public class UserNotification {
 
-
     String content;
     String type;
     String siteId;
@@ -12,6 +11,7 @@ public class UserNotification {
     String siteName;
 
     public UserNotification() {
+
     }
 
     public UserNotification(String content, String type, String siteId, String from, String to, String siteName) {

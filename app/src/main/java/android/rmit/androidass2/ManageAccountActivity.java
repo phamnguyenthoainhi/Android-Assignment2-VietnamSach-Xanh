@@ -221,9 +221,11 @@ public class ManageAccountActivity extends AppCompatActivity {
                                 user.setLastname(accountlastname.getText().toString());
                                 user.setPhone(accountphone.getText().toString());
                                 user.setEmail(accountemail.getText().toString());
-                                loggeduser.updateEmail(accountemail.getText().toString());
-                                welcome.setText("Welcome, "+ accountfirstname.getText().toString() + " " + accountlastname.getText().toString());
 
+                                if (!accountemail.getText().toString().isEmpty()) {
+                                    loggeduser.updateEmail(accountemail.getText().toString().trim());
+                                }
+                                welcome.setText("Welcome, "+ accountfirstname.getText().toString() + " " + accountlastname.getText().toString());
                                 updateUser();
                             }
                         })
@@ -251,7 +253,7 @@ public class ManageAccountActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent (ManageAccountActivity.this, MapsActivity.class));
+                startActivity(new Intent (ManageAccountActivity.this, MapsActivity.class));
                 finish();
             }
         });

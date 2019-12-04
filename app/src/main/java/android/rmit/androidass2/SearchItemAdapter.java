@@ -45,16 +45,15 @@ public class SearchItemAdapter extends RecyclerView.Adapter<SearchItemAdapter.Se
     }
 
     public void filter(CharSequence text, ArrayList<Site> sites) {
-        Log.d(TAG, "filter: " +text);
-        Log.d(TAG, "filter: mysites" + sites.toString());
+
         ArrayList<Site> filteredSites = new ArrayList<>();
         for (Site site: sites) {
             if (site.getLocation().contains(text)) {
-                Log.d(TAG, "filter: contains " + site);
+
                 filteredSites.add(site);
             }
         }
-        Log.d(TAG, "filter: finished" +filteredSites.toString());
+
         mySiteList = filteredSites;
         notifyDataSetChanged();
     }

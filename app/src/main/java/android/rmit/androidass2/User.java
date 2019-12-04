@@ -1,6 +1,5 @@
 package android.rmit.androidass2;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class User {
@@ -8,6 +7,7 @@ public class User {
     private List<String> sites;
 
     public User() {
+
     }
 
     public User(String firstname, String lastname, String phone, String gender, String email) {
