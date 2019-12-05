@@ -292,11 +292,15 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
 
     @Override
     public void onSiteClick(int position) {
-        sites.get(position);
-        Toast.makeText(this, ""+sites.get(position).getId(), Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(SitesActivity.this, ManageSiteActivity.class);
-        intent.putExtra("selectedsiteid",sites.get(position).getId());
-        startActivity(intent);
+        if (sites.size() > 0) {
+            sites.get(position);
+            Toast.makeText(this, ""+sites.get(position).getId(), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(SitesActivity.this, ManageSiteActivity.class);
+            intent.putExtra("selectedsiteid",sites.get(position).getId());
+            startActivity(intent);
+        }
+
+
     }
 
     @Override

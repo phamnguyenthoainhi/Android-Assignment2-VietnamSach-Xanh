@@ -146,7 +146,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         searchbar = findViewById(R.id.searchbar);
         recyclerView = findViewById(R.id.resultsearchlist);
         mapLayout = findViewById(R.id.maplayout);
-        searchbar.setClickable(true);
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         recyclerView.setVisibility(View.INVISIBLE);
@@ -168,6 +167,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         searchbar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+//                adapter.notifyDataSetChanged();
+                sites = new ArrayList<>();
+                fetchSites();
+                initRecyclerView();
                 recyclerView.setVisibility(View.VISIBLE);
 
             }

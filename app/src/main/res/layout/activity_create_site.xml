@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/createlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0F4FAEC7"
+
     android:orientation="vertical"
-
     tools:context="android.rmit.androidass2.CreateSiteActivity">
-
 
 
     <androidx.cardview.widget.CardView
@@ -70,7 +70,6 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:focusable="false"
-                        android:hint="Location"
                         android:textSize="14sp" />
 
                 </TableRow>
@@ -95,7 +94,6 @@
                         android:layout_marginLeft="10dp"
                         android:clickable="true"
                         android:focusable="false"
-                        android:hint="Date and Time"
                         android:inputType="none"
                         android:textSize="14sp" />
 
@@ -113,7 +111,7 @@
                         android:id="@+id/textView2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Name"
+                        android:text="Site Name"
                         android:textSize="16sp" />
 
                     <EditText
@@ -121,7 +119,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:hint="Name"
+                        android:hint="E.g: New Year Clean Up"
                         android:inputType="textPersonName"
                         android:textSize="14sp" />
                 </TableRow>

@@ -183,6 +183,7 @@ public class SignInActivity extends AppCompatActivity {
         passwordSignIn = findViewById(R.id.passwordsignin);
 
 
+
         showpassword = findViewById(R.id.showpasswordsignin);
         final Button hidepassword = findViewById(R.id.hidepasswordsignin);
 
@@ -322,8 +323,6 @@ public class SignInActivity extends AppCompatActivity {
         inputMethodManager.hideSoftInputFromWindow(view.
                 getWindowToken(), 0);
     }
-
-
 
 
 }

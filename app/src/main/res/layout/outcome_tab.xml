@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/outcomelayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0F4FAEC7"
@@ -8,10 +9,9 @@
     android:paddingLeft="20dp"
     android:paddingTop="40dp"
     android:paddingRight="20dp"
-    android:paddingBottom="40dp"
 
 
-    >
+    android:paddingBottom="40dp">
 
     <ScrollView
         android:layout_width="match_parent"
