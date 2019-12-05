@@ -3,16 +3,17 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/detaillayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
 
+    android:layout_height="match_parent"
     android:background="#0F4FAEC7"
     android:orientation="vertical"
     android:paddingLeft="20dp"
     android:paddingTop="40dp"
+
+
     android:paddingRight="20dp"
-
-
     android:paddingBottom="40dp">
 
 

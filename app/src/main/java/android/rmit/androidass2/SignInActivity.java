@@ -21,8 +21,6 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,8 +36,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,9 +47,9 @@ public class SignInActivity extends AppCompatActivity {
     EditText passwordSignIn;
     LoginButton loginButton;
     Button showpassword;
+    String email;
 
     FirebaseFirestore db;
-    String email;
 
     String TAG = "SignInActivity";
 
@@ -190,6 +186,7 @@ public class SignInActivity extends AppCompatActivity {
         passwordSignIn = findViewById(R.id.passwordsignin);
 
 
+
         showpassword = findViewById(R.id.showpasswordsignin);
         final Button hidepassword = findViewById(R.id.hidepasswordsignin);
 
@@ -228,22 +225,6 @@ public class SignInActivity extends AppCompatActivity {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult.getAccessToken().getToken());
                 handleFacebookAccessToken(loginResult.getAccessToken());
 
-                GraphRequest graphRequest = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(JSONObject object, GraphResponse response) {
-                        if(response.getError()!=null){
-
-                        }
-                        else{
-                            email = object.optString("email");
-                            Toast.makeText(SignInActivity.this, "Email FB: "+object.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                Bundle parameters = new Bundle();
-                parameters.putString("fields","email");
-                graphRequest.setParameters(parameters);
-                Toast.makeText(SignInActivity.this, "Email FB: "+email, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -256,6 +237,9 @@ public class SignInActivity extends AppCompatActivity {
 
             }
         });
+
+
+
 
 
 
@@ -344,8 +328,6 @@ public class SignInActivity extends AppCompatActivity {
         inputMethodManager.hideSoftInputFromWindow(view.
                 getWindowToken(), 0);
     }
-
-
 
 
 }

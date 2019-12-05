@@ -192,7 +192,6 @@ public class ManageAccountActivity extends AppCompatActivity {
                 mAuth.signOut();
                 FirebaseAuth.getInstance().signOut();
                 LoginManager.getInstance().logOut();
-                //startActivity(new Intent(ManageAccountActivity.this, MapsActivity.class));
                 finish();
             }
         });

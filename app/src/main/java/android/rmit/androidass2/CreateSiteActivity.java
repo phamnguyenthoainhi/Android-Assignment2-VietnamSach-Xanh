@@ -5,14 +5,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -54,6 +57,17 @@ public class CreateSiteActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_site);
+
+
+        RelativeLayout layout = findViewById(R.id.createlayout);
+        layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideKeyBoard(v);
+
+            }
+        });
+
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
         locationInput = findViewById(R.id.location);
@@ -235,6 +249,14 @@ public class CreateSiteActivity extends AppCompatActivity {
         }
 
         return s;
+    }
+    public void hideKeyBoard(View view) {
+
+        InputMethodManager inputMethodManager =
+                (InputMethodManager) getSystemService(
+                        Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.
+                getWindowToken(), 0);
     }
 
 }
