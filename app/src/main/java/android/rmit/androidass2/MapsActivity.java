@@ -206,6 +206,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 sites = new ArrayList<>();
+                mMap.clear();
+                getPosition(MapsActivity.this);
                 //clusterManager.clearItems();
                 fetchSites();
             }
@@ -283,7 +285,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void refreshTokenId(){
         SharedPreferences sharedPreferences = getSharedPreferences("id",MODE_PRIVATE);
         final String userId = sharedPreferences.getString("uid",null);
-        if(currentUser.getUid()!=null) {
+        if(currentUser != null) {
             FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
                 @Override
                 public void onSuccess(InstanceIdResult instanceIdResult) {

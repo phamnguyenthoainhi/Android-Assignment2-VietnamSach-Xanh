@@ -75,19 +75,21 @@ public class NotificationService extends FirebaseMessagingService {
         String userId = sharedPreferences.getString("uid",null);
 
         final FirebaseFirestore db = FirebaseFirestore.getInstance();
+        if (currentuser != null) {
+            db.collection("Tokens").document(currentuser.getUid()).set(new UserToken(s))
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("Token","Successfully updated token.");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Token", "Failed to update token");
+                        }
+                    });
+        }
 
-        db.collection("Tokens").document(currentuser.getUid()).set(new UserToken(s))
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Token","Successfully updated token.");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Token", "Failed to update token");
-                    }
-                });
     }
 }
