@@ -21,6 +21,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +38,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class SignInActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
@@ -46,6 +53,7 @@ public class SignInActivity extends AppCompatActivity {
     Button showpassword;
 
     FirebaseFirestore db;
+    String email;
 
     String TAG = "SignInActivity";
 
@@ -93,39 +101,44 @@ public class SignInActivity extends AppCompatActivity {
                             User newuser = new User();
 
                             Log.d(TAG, "onComplete: currentuser "+ user.getDisplayName());
+                            //System.out.println("NAME: " + user.getDisplayName());
                             newuser.setEmail(user.getEmail());
                             newuser.setFirstname(user.getDisplayName());
+
                             addUser(newuser, user.getUid());
+                            FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+                                @Override
+                                public void onSuccess(InstanceIdResult instanceIdResult) {
+                                    String token = instanceIdResult.getToken();
+
+                                    db.collection("Tokens").document(user.getUid()).set(new UserToken(token))
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.w(TAG,"Failed to update token ID");
+                                                }
+                                            })
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.d(TAG,"Updated token ID");
+                                                }
+                                            });
+
+                                }
+                            });
                             if (user.isEmailVerified()) {
                                 SharedPreferences sharedPreferences = getSharedPreferences("id", MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("uid", user.getUid());
                                 editor.commit();
-                                FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
-                                    @Override
-                                    public void onSuccess(InstanceIdResult instanceIdResult) {
-                                        String token = instanceIdResult.getToken();
 
-                                        db.collection("Tokens").document(user.getUid()).set(new UserToken(token))
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Log.w(TAG,"Failed to update token ID");
-                                                    }
-                                                })
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Log.d(TAG,"Updated token ID");
-                                                    }
-                                                });
-
-                                    }
-                                });
-                                startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
+                                //startActivity(new Intent(SignInActivity.this,  MapsActivity.class));
+                                finish();
 
                             } else {
                                 startActivity(new Intent(SignInActivity.this, VerifyEmail.class));
+                                finish();
                             }
 
 
@@ -205,11 +218,32 @@ public class SignInActivity extends AppCompatActivity {
         Button signIn = findViewById(R.id.signin);
         callbackManager = CallbackManager.Factory.create();
         loginButton = findViewById ( R.id.login_button);
+        List<String>permissions = new ArrayList<>();
+        permissions.add("email");
+        permissions.add("public_profile");
+        loginButton.setPermissions(permissions);
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult.getAccessToken().getToken());
                 handleFacebookAccessToken(loginResult.getAccessToken());
+
+                GraphRequest graphRequest = GraphRequest.newMeRequest(loginResult.getAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        if(response.getError()!=null){
+
+                        }
+                        else{
+                            email = object.optString("email");
+                            Toast.makeText(SignInActivity.this, "Email FB: "+object.toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                Bundle parameters = new Bundle();
+                parameters.putString("fields","email");
+                graphRequest.setParameters(parameters);
+                Toast.makeText(SignInActivity.this, "Email FB: "+email, Toast.LENGTH_SHORT).show();
             }
 
             @Override

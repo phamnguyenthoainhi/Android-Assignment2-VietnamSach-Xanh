@@ -41,8 +41,8 @@ public class VerifyEmail extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(VerifyEmail.this, "Success", Toast.LENGTH_SHORT).show();
                                     Log.d(TAG, "onComplete: successful verifed email");
-                                    startActivity(new Intent(VerifyEmail.this, MapsActivity.class));
-
+                                    //startActivity(new Intent(VerifyEmail.this, MapsActivity.class));
+                                    finish();
                                 }
                             }
                         });
@@ -53,7 +53,8 @@ public class VerifyEmail extends AppCompatActivity {
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(VerifyEmail.this, MapsActivity.class));
+                //startActivity(new Intent(VerifyEmail.this, MapsActivity.class));
+                finish();
             }
         });
     }

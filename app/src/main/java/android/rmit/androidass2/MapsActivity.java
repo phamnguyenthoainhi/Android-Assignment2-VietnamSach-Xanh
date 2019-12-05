@@ -92,7 +92,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        SearchItemAdapter.SearchItemViewHolder.OnSiteListener {
+        SearchItemAdapter.SearchItemViewHolder.OnSiteListener{
 
     private static final String TAG = "MapsActivity";
     private EditText searchbar;
@@ -346,6 +346,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         hideKeyBoard(recyclerView);
 
     }
+
+//    @Override
+//    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//        if(FirebaseAuth.getInstance().getUid()!=null) {
+//            System.out.println("Email user: "+FirebaseAuth.getInstance().getCurrentUser().getEmail());
+//            db.collection("Users")
+//                    .document(FirebaseAuth.getInstance().getUid())
+//                    .update("email", FirebaseAuth.getInstance().getCurrentUser().getEmail());
+//        }
+//
+//
+//    }
 
     //Create the navigation bar
     public void createNavigationBar() {
