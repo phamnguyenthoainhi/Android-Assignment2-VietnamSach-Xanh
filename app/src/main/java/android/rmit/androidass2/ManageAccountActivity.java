@@ -18,6 +18,7 @@ import android.widget.EditText;
 
 import android.widget.TextView;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -190,6 +191,7 @@ public class ManageAccountActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mAuth.signOut();
                 FirebaseAuth.getInstance().signOut();
+                LoginManager.getInstance().logOut();
                 startActivity(new Intent(ManageAccountActivity.this, MapsActivity.class));
                 finish();
             }

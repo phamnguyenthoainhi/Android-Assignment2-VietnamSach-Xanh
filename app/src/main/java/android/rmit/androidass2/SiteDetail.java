@@ -70,14 +70,17 @@ public class SiteDetail extends AppCompatActivity {
                             sitelocation.setText(site.getLocation());
                             siteinfo.setText(site.getName());
                             sitedate.setText(convertDate(site.getDateTime()));
-                            if (site.getOwner() != null && site.getOwner().equals(loggedUser.getUid())) {
-                                join.setVisibility(View.GONE);
-                            }
-                            if (site.getVolunteers() != null) {
-                                if (site.getVolunteers().contains(loggedUser.getUid())) {
+                            if (loggedUser != null) {
+                                if (site.getOwner() != null && site.getOwner().equals(loggedUser.getUid())) {
                                     join.setVisibility(View.GONE);
                                 }
+                                if (site.getVolunteers() != null) {
+                                    if (site.getVolunteers().contains(loggedUser.getUid())) {
+                                        join.setVisibility(View.GONE);
+                                    }
+                                }
                             }
+
                         }
                         else {
                             db.collection("Sites").document(selectedSite).get()
@@ -160,6 +163,7 @@ public class SiteDetail extends AppCompatActivity {
                 finish();
             }
         });
+
         loggedUser = FirebaseAuth.getInstance().getCurrentUser();
         onNewIntent(getIntent());
         sharedPreferences = getSharedPreferences("id", Context.MODE_PRIVATE);
@@ -172,78 +176,82 @@ public class SiteDetail extends AppCompatActivity {
             join.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(SiteDetail.this)
-                            .setTitle("Confirmation")
-                            .setMessage("Do you want to join this clean up site? \n" + site.getLocation())
-                            .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Toast.makeText(SiteDetail.this, "Success", Toast.LENGTH_SHORT).show();
+                    if (loggedUser != null) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SiteDetail.this)
+                                .setTitle("Confirmation")
+                                .setMessage("Do you want to join this clean up site? \n" + site.getLocation())
+                                .setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Toast.makeText(SiteDetail.this, "Success", Toast.LENGTH_SHORT).show();
 
-                                    List<String> volunteers = site.getVolunteers();
-                                    volunteers.add(loggedUser.getUid());
-                                    site.setVolunteers(volunteers);
+                                        List<String> volunteers = site.getVolunteers();
+                                        volunteers.add(loggedUser.getUid());
+                                        site.setVolunteers(volunteers);
 
 
-                                    DocumentReference siteRef = db.collection("SitesVolunteers").document(site.getId());
-                                    siteRef.update("volunteers",volunteers)
-                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Log.d(TAG,"Successfully updated!");
-                                                    join.setVisibility(View.GONE);
-                                                }
-                                            })
-                                            .addOnFailureListener(new OnFailureListener() {
-                                                @Override
-                                                public void onFailure(@NonNull Exception e) {
-                                                    Log.w(TAG,"Failed to update.",e);
-
-                                                }
-                                            });
-                                    db.collection("Users").document(loggedUser.getUid()).get()
-                                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                                @Override
-                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                                    User user = documentSnapshot.toObject(User.class);
-                                                    List<String> volunteeredSites = new ArrayList<>();
-                                                    if(user!=null){
-                                                        if(user.getSites()!=null){
-                                                            volunteeredSites = user.getSites();
-                                                        }
-                                                        else {
-
-                                                        }
-                                                        volunteeredSites.add(site.getId());
-                                                        db.collection("Users").document(loggedUser.getUid())
-                                                                .update("sites",volunteeredSites)
-                                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                                    @Override
-                                                                    public void onSuccess(Void aVoid) {
-                                                                        Log.d(TAG,"Successfully updated user.");
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                        Log.w(TAG,"Failed to update user.");
-                                                                    }
-                                                                });
+                                        DocumentReference siteRef = db.collection("SitesVolunteers").document(site.getId());
+                                        siteRef.update("volunteers",volunteers)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d(TAG,"Successfully updated!");
+                                                        join.setVisibility(View.GONE);
                                                     }
-                                                }
-                                            });
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Log.w(TAG,"Failed to update.",e);
 
-                                }
-                            })
-                            .setPositiveButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    Toast.makeText(SiteDetail.this, "Failure", Toast.LENGTH_SHORT).show();
-                                    dialogInterface.dismiss();
-                                }
-                            });
+                                                    }
+                                                });
+                                        db.collection("Users").document(loggedUser.getUid()).get()
+                                                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        User user = documentSnapshot.toObject(User.class);
+                                                        List<String> volunteeredSites = new ArrayList<>();
+                                                        if(user!=null){
+                                                            if(user.getSites()!=null){
+                                                                volunteeredSites = user.getSites();
+                                                            }
+                                                            else {
 
-                    builder.create().show();
+                                                            }
+                                                            volunteeredSites.add(site.getId());
+                                                            db.collection("Users").document(loggedUser.getUid())
+                                                                    .update("sites",volunteeredSites)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            Log.d(TAG,"Successfully updated user.");
+                                                                        }
+                                                                    })
+                                                                    .addOnFailureListener(new OnFailureListener() {
+                                                                        @Override
+                                                                        public void onFailure(@NonNull Exception e) {
+                                                                            Log.w(TAG,"Failed to update user.");
+                                                                        }
+                                                                    });
+                                                        }
+                                                    }
+                                                });
+
+                                    }
+                                })
+                                .setPositiveButton("No", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        Toast.makeText(SiteDetail.this, "Failure", Toast.LENGTH_SHORT).show();
+                                        dialogInterface.dismiss();
+                                    }
+                                });
+
+                        builder.create().show();
+                    } else {
+                        startActivity(new Intent(SiteDetail.this, SignInActivity.class));
+                    }
                 }
             });
 
@@ -253,7 +261,12 @@ public class SiteDetail extends AppCompatActivity {
         invite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialogInvite();
+                if (loggedUser != null) {
+                    showDialogInvite();
+
+                } else {
+                    startActivity(new Intent(SiteDetail.this, SignInActivity.class));
+                }
 
             }
         });

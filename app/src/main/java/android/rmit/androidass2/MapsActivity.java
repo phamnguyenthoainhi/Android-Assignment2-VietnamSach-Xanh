@@ -16,6 +16,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -271,6 +272,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+
+
+
     //    function to hide the ketboard
     public void hideKeyBoard(View view) {
 
@@ -430,14 +434,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     editor.putString("sid", siteLocation.getSnippet());
                     editor.commit();
                     if (sharedPreferences.getString("sid", "") != null) {
-                        if (currentUser != null) {
+//                        if (currentUser != null) {
 //                            Toast.makeText(MapsActivity.this, ""+currentUser.getUid(), Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(MapsActivity.this, SiteDetail.class);
                             intent.putExtra("id", siteLocation.getSnippet());
                             startActivity(intent);
-                        } else {
-                            startActivity(new Intent(MapsActivity.this, SignInActivity.class));
-                        }
+//                        }
+
+//                        else {
+//                            startActivity(new Intent(MapsActivity.this, SignInActivity.class));
+//                        }
                     }
                 }
             }
@@ -639,7 +645,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onSuccess(Location location) {
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location"));
+                int height = 130;
+                int width = 130;
+                BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
+                Bitmap bitmap = bitmapdraw.getBitmap();
+                Bitmap small = Bitmap.createScaledBitmap(bitmap, width, height, false);
+                mMap.addMarker(new MarkerOptions().position(myLocation).title("My Location").icon(BitmapDescriptorFactory.fromBitmap(small)));
+
                 builder.include(myLocation);
             }
         });

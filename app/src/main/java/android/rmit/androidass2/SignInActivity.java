@@ -21,6 +21,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +38,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SignInActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
 
@@ -44,6 +49,7 @@ public class SignInActivity extends AppCompatActivity {
     EditText passwordSignIn;
     LoginButton loginButton;
     Button showpassword;
+    String email;
 
     FirebaseFirestore db;
 
@@ -205,11 +211,14 @@ public class SignInActivity extends AppCompatActivity {
         Button signIn = findViewById(R.id.signin);
         callbackManager = CallbackManager.Factory.create();
         loginButton = findViewById ( R.id.login_button);
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult.getAccessToken().getToken());
                 handleFacebookAccessToken(loginResult.getAccessToken());
+
+
             }
 
             @Override
@@ -222,6 +231,9 @@ public class SignInActivity extends AppCompatActivity {
 
             }
         });
+
+
+
 
 
 
