@@ -288,40 +288,40 @@ public class SiteDetail extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                db.collection("Users").whereEqualTo("email", email.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if(task.isSuccessful()){
-
-                            Log.d(TAG, "onComplete: invite "+ task.getResult().getDocuments());
-
-                            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
-
-                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, loggedUser.getUid(), documentSnapshot.getId(),site.getName());
+//                db.collection("Users").whereEqualTo("email", email.getText().toString()).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if(task.isSuccessful()){
+//
+//                            Log.d(TAG, "onComplete: invite "+ task.getResult().getDocuments());
+//
+//                            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+                Toast.makeText(SiteDetail.this, "Sending invitation...", Toast.LENGTH_SHORT).show();
+                            UserNotification userNotification = new UserNotification("You have a new invitation!", "invitation", siteId, loggedUser.getUid(), email.getText().toString(),site.getName());
 
 
                             db.collection("Notifications").add(userNotification)
                                     .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                                         @Override
                                         public void onSuccess(DocumentReference documentReference) {
-                                            Toast.makeText(SiteDetail.this, "Successfully posted notification", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(SiteDetail.this, "Successfully sent invitation", Toast.LENGTH_SHORT).show();
                                             alertDialog.dismiss();
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
-                                            Toast.makeText(SiteDetail.this, "Failed to post notification", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(SiteDetail.this, "Failed to send invitation", Toast.LENGTH_SHORT).show();
                                             alertDialog.dismiss();
                                         }
                                     });
 
-                        }
-                        else{
-                            Toast.makeText(SiteDetail.this, "failed to get user", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+//                        }
+//                        else{
+//                            Toast.makeText(SiteDetail.this, "failed to get user", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
             }
         });
         alertDialog.show();

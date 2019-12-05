@@ -251,7 +251,7 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SitesActivity.this, MapsActivity.class));
+
                 finish();
             }
         });
@@ -285,7 +285,12 @@ public class SitesActivity extends AppCompatActivity implements SiteAdapter.Site
         super.onResume();
         if(adapter!=null) {
             sites= new ArrayList<>();
-            fetchSiteByOwnerId();
+            fetchSites();
+            if (loggeduser.getUid().equals(superuser)){
+                fetchSiteBySuperUser();
+            } else {
+                fetchSiteByOwnerId();
+            }
             adapter.notifyDataSetChanged();
         }
     }

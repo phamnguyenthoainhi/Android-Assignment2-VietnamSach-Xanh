@@ -660,8 +660,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onSuccess(Location location) {
                 myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                int height = 130;
-                int width = 130;
+                int height = 110;
+                int width = 110;
                 BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.mapmarker);
                 Bitmap bitmap = bitmapdraw.getBitmap();
                 Bitmap small = Bitmap.createScaledBitmap(bitmap, width, height, false);

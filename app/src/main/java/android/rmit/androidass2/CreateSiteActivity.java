@@ -153,7 +153,7 @@ public class CreateSiteActivity extends AppCompatActivity {
                         .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
-                                Log.d(TAG,"Site added with ID: "+documentReference.getId());
+                                Toast.makeText(CreateSiteActivity.this, "Creating site...", Toast.LENGTH_SHORT).show();
 
                                 final String id = documentReference.getId();
 
@@ -163,14 +163,14 @@ public class CreateSiteActivity extends AppCompatActivity {
                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                Toast.makeText(CreateSiteActivity.this, "Successfully added base report", Toast.LENGTH_SHORT).show();
+                                                //Toast.makeText(CreateSiteActivity.this, "Successfully added base report", Toast.LENGTH_SHORT).show();
                                                 db.collection("SitesVolunteers")
                                                         .document(id)
                                                         .set(site)
                                                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                             @Override
                                                             public void onSuccess(Void aVoid) {
-                                                                Toast.makeText(CreateSiteActivity.this, "Create site with volunteers", Toast.LENGTH_SHORT).show();
+                                                                //Toast.makeText(CreateSiteActivity.this, "Create site with volunteers", Toast.LENGTH_SHORT).show();
                                                                 //startActivity(new Intent(CreateSiteActivity.this,SitesActivity.class));
                                                                 finish();
                                                             }
